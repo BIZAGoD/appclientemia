@@ -1,58 +1,106 @@
-import 'package:appcliente/Pantallas/Servicios/PantallaAgregarTaller.dart';
-import 'package:appcliente/Pantallas/Servicios/PantallaServicioAgendado.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:appcliente/Pantallas/Servicios/PantallaAgregarTaller.dart';
+import 'package:appcliente/Pantallas/Servicios/PantallaServicioAgendado.dart';
 
 class PantallaAgendarServicio extends StatefulWidget {
-  final Taller taller;
-
-  const PantallaAgendarServicio({super.key, required this.taller});
+  const PantallaAgendarServicio({super.key});
 
   @override
   _PantallaAgendarServicioState createState() => _PantallaAgendarServicioState();
 }
 
 class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
-  TextEditingController fechaController = TextEditingController();
-  TextEditingController horaController = TextEditingController();
-  TextEditingController descripcionController = TextEditingController();
-  String? selectedTipoServicio;
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _fechaController = TextEditingController();
+  final TextEditingController _nombreController = TextEditingController();
+  final TextEditingController _apellidosController = TextEditingController();
+  final TextEditingController _telefonoController = TextEditingController();
+  final TextEditingController _correoController = TextEditingController();
+  final TextEditingController _modeloController = TextEditingController();
+  final TextEditingController _marcaController = TextEditingController();
+  final TextEditingController _anioController = TextEditingController();
+  final TextEditingController _placasController = TextEditingController();
+  final TextEditingController _serviciosController = TextEditingController();
 
-  Future<void> agendarServicio() async {
-    final url = Uri.parse('https://followcar-api-railway-production.up.railway.app/api/citas');
-    
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'ClienteId': 1, // Suponiendo que el cliente tiene ID 1
-        'VehiculoId': 1, // Suponiendo que el vehículo tiene ID 1
-        'TipoServicioId': selectedTipoServicio, // Deberías mapear el servicio seleccionado
-        'MecanicoId': 1, // Suponiendo que el mecánico tiene ID 1
-        'FechaHora': '${fechaController.text} ${horaController.text}', // Fecha y hora concatenadas
-        'Estado': 'Pendiente',
-        'MotivoCancelacion': '',
-        'ObservacionesCliente': descripcionController.text,
-        'ObservacionesInternas': descripcionController.text,
-        'Prioridad': 'Alta',
-      }),
+  bool _aceptaTerminos = false;
+  bool _aceptaPolitica = false;
+
+  @override
+  void dispose() {
+    _fechaController.dispose();
+    _nombreController.dispose();
+    _apellidosController.dispose();
+    _telefonoController.dispose();
+    _correoController.dispose();
+    _modeloController.dispose();
+    _marcaController.dispose();
+    _anioController.dispose();
+    _placasController.dispose();
+    _serviciosController.dispose();
+    super.dispose();
+  }
+
+  void _seleccionarFecha() async {
+    DateTime? fechaSeleccionada = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
     );
+    if (fechaSeleccionada != null) {
+      setState(() {
+        _fechaController.text =
+            "${fechaSeleccionada.day}/${fechaSeleccionada.month}/${fechaSeleccionada.year}";
+      });
+    }
+  }
 
-    if (response.statusCode == 200) {
+  Future<void> _agendarCita() async {
+    if (!_formKey.currentState!.validate() || !_aceptaTerminos || !_aceptaPolitica) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Servicio agendado exitosamente')),
+        const SnackBar(content: Text('Debe completar todos los campos y aceptar los términos.')),
+      );
+      return;
+    }
+
+    final Map<String, dynamic> citaData = {
+      "nombre": _nombreController.text,
+      "apellidos": _apellidosController.text,
+      "telefono": _telefonoController.text,
+      "correo": _correoController.text,
+      "modelo": _modeloController.text,
+      "marca": _marcaController.text,
+      "anio": _anioController.text,
+      "placas": _placasController.text,
+      "fecha": _fechaController.text,
+      "servicios": _serviciosController.text,
+    };
+
+    final url = Uri.parse("https://followcar-api-railway-production.up.railway.app/api/cita");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(citaData),
       );
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const PantallaServicioAgendado()),
-      );
-    } else {
+      if (response.statusCode == 201) {
+        // Cita agendada con éxito, navega a la pantalla de confirmación
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const PantallaServicioAgendado()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al agendar la cita. Inténtelo de nuevo.')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al agendar el servicio')),
+        SnackBar(content: Text('Error de conexión: $e')),
       );
     }
   }
@@ -61,122 +109,99 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Agendar Servicio'),
+        title: const Text('Agendar nueva cita'),
         backgroundColor: const Color.fromARGB(255, 237, 83, 65),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Agendar Servicio para: ${widget.taller.nombre}',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 46, 5, 82),
-                ),
-              ),
-              const SizedBox(height: 20),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSectionTitle('Datos del Cliente'),
+                _buildTextField('Nombre del Cliente', _nombreController),
+                _buildTextField('Apellidos', _apellidosController),
+                _buildTextField('Teléfono de Contacto', _telefonoController, keyboardType: TextInputType.phone),
+                _buildTextField('Correo Electrónico', _correoController, keyboardType: TextInputType.emailAddress),
 
-              // Campo para seleccionar la fecha
-              TextFormField(
-                controller: fechaController,
-                decoration: InputDecoration(
-                  labelText: 'Fecha del Servicio',
-                  hintText: 'Selecciona la fecha',
-                  border: OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.calendar_today),
-                ),
-                readOnly: true,
-                onTap: () async {
-                  // Aquí puedes agregar un selector de fecha
-                },
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
+                _buildSectionTitle('Datos del Vehículo'),
+                _buildTextField('Modelo del Vehículo', _modeloController),
+                _buildTextField('Marca del Vehículo', _marcaController),
+                _buildTextField('Año del Vehículo', _anioController, keyboardType: TextInputType.number),
+                _buildTextField('Placas del Vehículo', _placasController),
 
-              // Campo para descripción del servicio
-              TextFormField(
-                controller: descripcionController,
-                decoration: InputDecoration(
-                  labelText: 'Descripción del Servicio',
-                  hintText: 'Especifica el servicio requerido',
-                  border: OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.description),
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 20),
-
-              // Selector de tipo de servicio
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelText: 'Tipo de Servicio',
-                  border: OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.build),
-                ),
-                items: [
-                  DropdownMenuItem(
-                    value: '1', // ID para Cambio de Aceite
-                    child: Text('Cambio de Aceite'),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _fechaController,
+                  decoration: InputDecoration(
+                    labelText: 'Fecha de la Cita',
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.calendar_today),
+                      onPressed: _seleccionarFecha,
+                    ),
+                    border: OutlineInputBorder(),
                   ),
-                  DropdownMenuItem(
-                    value: '2', // ID para Revisión General
-                    child: Text('Revisión General'),
-                  ),
-                  DropdownMenuItem(
-                    value: '3', // ID para Frenos
-                    child: Text('Frenos'),
-                  ),
-                  DropdownMenuItem(
-                    value: '4', // ID para Alineación
-                    child: Text('Alineación'),
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    selectedTipoServicio = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // Campo para seleccionar la hora
-              TextFormField(
-                controller: horaController,
-                decoration: InputDecoration(
-                  labelText: 'Hora del Servicio',
-                  hintText: 'Selecciona la hora',
-                  border: OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.access_time),
+                  readOnly: true,
+                  validator: (value) => value!.isEmpty ? 'Seleccione una fecha' : null,
                 ),
-                readOnly: true,
-                onTap: () async {
-                  // Aquí puedes agregar un selector de hora
-                },
-              ),
-              const SizedBox(height: 30),
+                const SizedBox(height: 15),
+                _buildTextField('Servicios Solicitados', _serviciosController, maxLines: 3),
 
-              // Botón para confirmar el agendado
-              ElevatedButton(
-                onPressed: agendarServicio,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 237, 83, 65),
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 25),
+                Center(
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _agendarCita,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 237, 83, 65),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        textStyle: const TextStyle(fontSize: 18),
+                      ),
+                      child: const Text('Agendar', style: TextStyle(fontSize: 18)),
+                    ),
                   ),
                 ),
-                child: const Text(
-                  'Confirmar Agendado',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  Widget _buildTextField(String labelText, TextEditingController controller,
+      {TextInputType keyboardType = TextInputType.text, int maxLines = 1}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: labelText,
+          border: OutlineInputBorder(),
+        ),
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        validator: (value) => value!.isEmpty ? 'Campo requerido' : null,
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+      ),
+    );
+  }
+
+  
 }

@@ -83,7 +83,7 @@ class PantallaDetallesTaller extends StatelessWidget {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PantallaAgendarServicio(taller: taller),
+                        builder: (context) => PantallaAgendarServicio(),
                       ),
                     );
                   },
