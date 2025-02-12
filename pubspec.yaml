@@ -1,0 +1,34 @@
+name: appcliente
+description: "Aplicacion oficial de Followcar."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  http: ^0.13.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Aquí agregamos la sección de assets
+  assets:
+
+     - assets/verify3.png
+     - assets/imageservicios.png
+     - assets/imagetaller.png
+     - assets/perfil.png
+     - assets/logohome.png
+     
+      # Ruta de la imagen que quieres usar
+
