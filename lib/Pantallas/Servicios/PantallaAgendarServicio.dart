@@ -78,7 +78,7 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
       "servicios": _serviciosController.text,
     };
 
-    final url = Uri.parse("https://followcar-api-railway-production.up.railway.app/api/cita");
+    final url = Uri.parse("https://followcar-api-railway-production.up.railway.app/api/citasClientes");
 
     try {
       final response = await http.post(
