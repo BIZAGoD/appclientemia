@@ -146,8 +146,7 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
                   readOnly: true,
                   validator: (value) => value!.isEmpty ? 'Seleccione una fecha' : null,
                 ),
-                const SizedBox(height: 15),
-                _buildTextField('Servicios Solicitados', _serviciosController, maxLines: 3),
+               
 
                 const SizedBox(height: 25),
                 Center(
