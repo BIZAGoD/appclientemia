@@ -23,9 +23,6 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
   final TextEditingController _placasController = TextEditingController();
   final TextEditingController _serviciosController = TextEditingController();
 
-  bool _aceptaTerminos = false;
-  bool _aceptaPolitica = false;
-
   @override
   void dispose() {
     _fechaController.dispose();
@@ -57,13 +54,6 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
   }
 
   Future<void> _agendarCita() async {
-    if (!_formKey.currentState!.validate() || !_aceptaTerminos || !_aceptaPolitica) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Debe completar todos los campos y aceptar los términos.')),
-      );
-      return;
-    }
-
     final Map<String, dynamic> citaData = {
       "nombre": _nombreController.text,
       "apellidos": _apellidosController.text,
@@ -108,7 +98,8 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Agendar nueva cita'),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Agendar nueva cita',style: TextStyle(fontSize: 18, color: Colors.white)),
         backgroundColor: const Color.fromARGB(255, 237, 83, 65),
       ),
       body: Padding(
@@ -144,9 +135,7 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
                     border: OutlineInputBorder(),
                   ),
                   readOnly: true,
-                  validator: (value) => value!.isEmpty ? 'Seleccione una fecha' : null,
                 ),
-               
 
                 const SizedBox(height: 25),
                 Center(
@@ -162,7 +151,7 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
                         ),
                         textStyle: const TextStyle(fontSize: 18),
                       ),
-                      child: const Text('Agendar', style: TextStyle(fontSize: 18)),
+                      child: const Text('Agendar',style: TextStyle(fontSize: 18, color: Colors.white)),
                     ),
                   ),
                 ),
@@ -186,7 +175,6 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
         ),
         keyboardType: keyboardType,
         maxLines: maxLines,
-        validator: (value) => value!.isEmpty ? 'Campo requerido' : null,
       ),
     );
   }
@@ -200,6 +188,4 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
       ),
     );
   }
-
-  
 }

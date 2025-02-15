@@ -17,6 +17,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
   final TextEditingController claveController = TextEditingController();
   String? emailError;
   String? claveError;
+  bool _obscureText = true; // Controla la visibilidad de la contraseña
 
   Future<void> login() async {
     const String apiUrl = "https://followcar-api-railway-production.up.railway.app/api/usuarios";
@@ -121,7 +122,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: claveController,
-                  obscureText: true,
+                  obscureText: _obscureText,
                   decoration: InputDecoration(
                     labelText: 'Contraseña',
                     prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 46, 5, 82)),
@@ -129,6 +130,17 @@ class _PantallaInicioState extends State<PantallaInicio> {
                     enabledBorder: OutlineInputBorder(
                       borderSide: const BorderSide(color: Color.fromARGB(255, 46, 5, 82)),
                       borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureText ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
                     ),
                   ),
                 ),
@@ -155,7 +167,10 @@ class _PantallaInicioState extends State<PantallaInicio> {
                     backgroundColor: const Color.fromARGB(255, 183, 17, 17),
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                   ),
-                  child: const Text("Inicio de sesión"),
+                  child: const Text(
+                    "Inicio de sesión",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Align(
@@ -177,7 +192,10 @@ class _PantallaInicioState extends State<PantallaInicio> {
                     backgroundColor: const Color.fromARGB(255, 46, 5, 82),
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                   ),
-                  child: const Text("Registrarse"),
+                  child: const Text(
+                    "Registrarse",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
                 ),
               ],
             ),
