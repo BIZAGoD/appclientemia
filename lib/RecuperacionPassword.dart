@@ -23,12 +23,6 @@ class Recuperacionpassword extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Image(
-              image: AssetImage('assets/logohome.png'),
-              height: 225,
-              width: 300,
-              fit: BoxFit.contain,
-            ),
             const Text(
               'Recuperación de Contraseña',
               textAlign: TextAlign.center,
