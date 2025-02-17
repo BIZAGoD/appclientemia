@@ -1,4 +1,4 @@
-import 'package:appcliente/Pantallas/Servicios/PantallaHomeServicios.dart';
+import 'package:appcliente/Pantallas/Citas/PantallaHomeCitas.dart';
 import 'package:flutter/material.dart';
 
 class PantallaCitaAgendada extends StatelessWidget {
@@ -54,7 +54,7 @@ class PantallaCitaAgendada extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const PantallaHomeservicios()),
+                    MaterialPageRoute(builder: (context) => const PantallaHomeCitas()),
                   );
                 },
                 style: ElevatedButton.styleFrom(

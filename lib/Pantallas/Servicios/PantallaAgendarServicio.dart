@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:appcliente/Pantallas/Servicios/PantallaServicioAgendado.dart';
+import 'package:appcliente/Pantallas/Citas/PantallaCitaAgendada.dart';
 
 class PantallaAgendarServicio extends StatefulWidget {
   const PantallaAgendarServicio({super.key});
@@ -54,6 +54,10 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
   }
 
   Future<void> _agendarCita() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     final Map<String, dynamic> citaData = {
       "nombre": _nombreController.text,
       "apellidos": _apellidosController.text,
@@ -67,7 +71,8 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
       "servicios": _serviciosController.text,
     };
 
-    final url = Uri.parse("https://followcar-api-railway-production.up.railway.app/api/citasClientes");
+    final url = Uri.parse(
+        "https://followcar-api-railway-production.up.railway.app/api/citasClientes");
 
     try {
       final response = await http.post(
@@ -77,14 +82,16 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
       );
 
       if (response.statusCode == 201) {
-        // Cita agendada con éxito, navega a la pantalla de confirmación
+        // Cita agendada con éxito, redirige a PantallaCitaAgendada
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const PantallaServicioAgendado()),
+          MaterialPageRoute(
+              builder: (context) => const PantallaCitaAgendada()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al agendar la cita. Inténtelo de nuevo.')),
+          const SnackBar(
+              content: Text('Error al agendar la cita. Inténtelo de nuevo.')),
         );
       }
     } catch (e) {
@@ -99,7 +106,8 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Agendar nueva cita',style: TextStyle(fontSize: 18, color: Colors.white)),
+        title: const Text('Agendar nueva cita',
+            style: TextStyle(fontSize: 18, color: Colors.white)),
         backgroundColor: const Color.fromARGB(255, 237, 83, 65),
       ),
       body: Padding(
@@ -113,14 +121,17 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
                 _buildSectionTitle('Datos del Cliente'),
                 _buildTextField('Nombre del Cliente', _nombreController),
                 _buildTextField('Apellidos', _apellidosController),
-                _buildTextField('Teléfono de Contacto', _telefonoController, keyboardType: TextInputType.phone),
-                _buildTextField('Correo Electrónico', _correoController, keyboardType: TextInputType.emailAddress),
+                _buildTextField('Teléfono de Contacto', _telefonoController,
+                    keyboardType: TextInputType.phone),
+                _buildTextField('Correo Electrónico', _correoController,
+                    keyboardType: TextInputType.emailAddress),
 
                 const SizedBox(height: 20),
                 _buildSectionTitle('Datos del Vehículo'),
                 _buildTextField('Modelo del Vehículo', _modeloController),
                 _buildTextField('Marca del Vehículo', _marcaController),
-                _buildTextField('Año del Vehículo', _anioController, keyboardType: TextInputType.number),
+                _buildTextField('Año del Vehículo', _anioController,
+                    keyboardType: TextInputType.number),
                 _buildTextField('Placas del Vehículo', _placasController),
 
                 const SizedBox(height: 20),
@@ -135,6 +146,8 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
                     border: OutlineInputBorder(),
                   ),
                   readOnly: true,
+                  validator: (value) =>
+                      value!.isEmpty ? 'Seleccione una fecha' : null,
                 ),
 
                 const SizedBox(height: 25),
@@ -144,14 +157,17 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
                     child: ElevatedButton(
                       onPressed: _agendarCita,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 237, 83, 65),
+                        backgroundColor:
+                            const Color.fromARGB(255, 237, 83, 65),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                         textStyle: const TextStyle(fontSize: 18),
                       ),
-                      child: const Text('Agendar',style: TextStyle(fontSize: 18, color: Colors.white)),
+                      child: const Text('Agendar',
+                          style: TextStyle(
+                              fontSize: 18, color: Colors.white)),
                     ),
                   ),
                 ),
@@ -175,6 +191,8 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
         ),
         keyboardType: keyboardType,
         maxLines: maxLines,
+        validator: (value) =>
+            value!.isEmpty ? 'Este campo es obligatorio' : null,
       ),
     );
   }
@@ -184,7 +202,8 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+        style: const TextStyle(
+            fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurple),
       ),
     );
   }
