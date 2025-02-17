@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:appcliente/PantallaInicio.dart'; // Asegúrate de importar la pantalla de inicio
+import 'package:shared_preferences/shared_preferences.dart'; // Para manejar la sesión
+
 
 class PantallaCerrarSesion extends StatelessWidget {
   const PantallaCerrarSesion({super.key});
@@ -25,58 +27,65 @@ class PantallaCerrarSesion extends StatelessWidget {
       context: context,
       barrierDismissible: false, // Evita que el cuadro de diálogo se cierre al tocar fuera de él
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0), // Bordes redondeados
-          ),
-          backgroundColor: Colors.white, // Fondo blanco
-          title: const Text(
-            '¿Deseas cerrar sesión?',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+        return WillPopScope(
+          onWillPop: () async => false, // Deshabilita retroceso
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0), // Bordes redondeados
             ),
-          ),
-          content: const Text(
-            'Si cierras sesión, perderás el acceso hasta que inicies nuevamente.',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Cerrar el cuadro de diálogo
-                Navigator.pop(context); // Regresar al Drawer
-              },
-              child: const Text(
-                'Cancelar',
-                style: TextStyle(
-                  color: Colors.blue,
-                  fontSize: 16,
-                ),
+            backgroundColor: Colors.white, // Fondo blanco
+            title: const Text(
+              '¿Deseas cerrar sesión?',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PantallaInicio(), // Navegar a la pantalla de inicio
+            content: const Text(
+              'Si cierras sesión, perderás el acceso hasta que inicies nuevamente.',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Cerrar el cuadro de diálogo
+                  Navigator.pop(context); // Regresar al Drawer
+                },
+                child: const Text(
+                  'Cancelar',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 16,
                   ),
-                );
-              },
-              child: const Text(
-                'Cerrar sesión',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 16,
                 ),
               ),
-            ),
-          ],
+              TextButton(
+                onPressed: () async {
+                  // Eliminar datos de sesión
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  await prefs.remove('user_token'); // O la clave que estés usando
+
+                  // Navegar a la pantalla de inicio
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PantallaInicio()), 
+                    (Route<dynamic> route) => false, // Elimina todas las pantallas previas
+                  );
+                },
+                child: const Text(
+                  'Cerrar sesión',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );

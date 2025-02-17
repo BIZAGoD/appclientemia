@@ -4,6 +4,7 @@ import 'package:appcliente/RecuperacionPassword.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'PantallaRegistro.dart';
+import 'package:shared_preferences/shared_preferences.dart';  //ESTO ES DONDE SE GUARDA LOS DATOS DE CADA USUARIO //IMPORTANTE//
 
 class PantallaInicio extends StatefulWidget {
   const PantallaInicio({super.key});
@@ -49,6 +50,11 @@ class _PantallaInicioState extends State<PantallaInicio> {
             claveError = null;
           });
 
+                  // Guardar los datos del usuario en SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('name', usuarioEncontrado["Nombre"]);
+          await prefs.setString('email', usuarioEncontrado["Email"]);
+
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const Pantallaverificado()),
@@ -82,12 +88,12 @@ class _PantallaInicioState extends State<PantallaInicio> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Center( // Centra todo el contenido en la pantalla
+        child: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center, // Centra los elementos verticalmente
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Center(
