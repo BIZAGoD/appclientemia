@@ -50,10 +50,17 @@ class _PantallaInicioState extends State<PantallaInicio> {
             claveError = null;
           });
 
-                  // Guardar los datos del usuario en SharedPreferences
+          // Guardar los datos del usuario en SharedPreferences
           SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('name', usuarioEncontrado["Nombre"]);
+          await prefs.setInt('userId', usuarioEncontrado["id"]); // Guardamos el ID
+          await prefs.setString('nombre', usuarioEncontrado["Nombre"]);
+          await prefs.setString('apellido', usuarioEncontrado["Apellido"]);
           await prefs.setString('email', usuarioEncontrado["Email"]);
+          await prefs.setString('telefono', usuarioEncontrado["Telefono"]);
+          
+          // Guardar el nombre completo para mostrarlo en el drawer
+          String nombreCompleto = "${usuarioEncontrado["Nombre"]} ${usuarioEncontrado["Apellido"]}";
+          await prefs.setString('nombreCompleto', nombreCompleto);
 
           Navigator.push(
             context,
@@ -74,6 +81,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Ocurrió un error")),
       );
+      print('Error en login: $e'); // Para debugging
     }
   }
 

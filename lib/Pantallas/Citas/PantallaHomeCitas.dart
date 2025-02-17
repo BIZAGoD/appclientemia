@@ -4,10 +4,78 @@ import 'package:appcliente/Pantallas/Configuraciones/PantallaModoOscuro.dart';
 import 'package:appcliente/Pantallas/Configuraciones/PantallaPerfil.dart';
 import 'package:appcliente/Pantallas/Servicios/PantallaHomeServicios.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
-
-class PantallaHomeCitas extends StatelessWidget {
+class PantallaHomeCitas extends StatefulWidget {
   const PantallaHomeCitas({super.key});
+
+  @override
+  State<PantallaHomeCitas> createState() => _PantallaHomeCitasState();
+}
+
+
+class _PantallaHomeCitasState extends State<PantallaHomeCitas> {    
+  List<Cita> citas = [];
+  bool isLoading = true;
+  String? userEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    obtenerUsuarioYCargarCitas();
+  }
+
+  Future<void> obtenerUsuarioYCargarCitas() async {
+    final prefs = await SharedPreferences.getInstance();
+    userEmail = prefs.getString('email'); // Obtener el email del usuario que inició sesión
+    print('Email del usuario obtenido: $userEmail'); // Debugging
+    
+    if (userEmail != null) {
+      await cargarCitas();
+    } else {
+      print('No se encontró email de usuario'); // Debugging
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> cargarCitas() async {
+    try {
+      final response = await http.get(Uri.parse(
+          'https://followcar-api-railway-production.up.railway.app/api/citasClientes'));
+          
+      if (response.statusCode == 200) {
+        final List<dynamic> citasJson = json.decode(response.body);
+        print('Buscando citas para el usuario con email: $userEmail'); // Debugging
+        
+        setState(() {
+          // Filtrar las citas que corresponden al email del usuario actual
+          citas = citasJson
+              .where((cita) => cita['Email'].toString().toLowerCase() == userEmail?.toLowerCase())
+              .map((json) => Cita.fromJson(json))
+              .toList();
+          isLoading = false;
+        });
+        
+        print('Citas encontradas: ${citas.length}'); // Debugging
+      } else {
+        print('Error en la respuesta: ${response.statusCode}'); // Debugging
+        setState(() {
+          citas = [];
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error al cargar citas: $e'); // Debugging
+      setState(() {
+        isLoading = false;
+        citas = [];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,47 +84,115 @@ class PantallaHomeCitas extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: const Color.fromARGB(255, 237, 83, 65),
       ),
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 16.0),
-              child: Column(
-                children: [
-                  const Text(
-                    'Citas',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 46, 5, 82),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : citas.isEmpty
+              ? Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Citas',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 46, 5, 82),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Image.asset(
+                          'assets/Imageservicios.png',
+                          height: 400,
+                          width: 350,
+                          fit: BoxFit.contain,
+                        ),
+                        const Center(
+                          child: Text(
+                            'Aún no ha programado ninguna cita',
+                            style: TextStyle(
+                              fontSize: 25,
+                              color: Color.fromARGB(255, 155, 150, 158),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20), // Espacio entre el texto y la imagen
-                  Image.asset(
-                    'assets/imageservicios.png',
-                    height: 400,
-                    width: 350,
-                    fit: BoxFit.contain,
-                  ),
-                  const Center(
-                    child: Text(
-                      'Aún no ha solicitado ninguna cita',
-                      style: TextStyle(
-                        wordSpacing: -1,
-                        fontSize: 23,
-                        color: Color.fromARGB(255, 155, 150, 158),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: citas.length,
+                  itemBuilder: (context, index) {
+                    final cita = citas[index];
+                    return Card(
+                      elevation: 4,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-
-
+                      child: InkWell(
+                        onTap: () => _mostrarDetallesCita(context, cita),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_month,
+                                    color: Color.fromARGB(255, 237, 83, 65),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    cita.fechaCita,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Divider(height: 16),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.directions_car,
+                                    color: Color.fromARGB(255, 46, 5, 82),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      '${cita.marca} ${cita.modelo} (${cita.anio})',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () => _mostrarDetallesCita(context, cita),
+                                    child: const Text(
+                                      'Ver detalles',
+                                      style: TextStyle(
+                                        color: Color.fromARGB(255, 46, 5, 82),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
       drawer: Drawer(                                    //AQUI EMPIEZA EL DRAWER
         child: ListView(
           padding: EdgeInsets.zero,
@@ -171,6 +307,128 @@ class PantallaHomeCitas extends StatelessWidget {
       //  child: const Icon(Icons.post_add, color: Colors.white),
      // ),
 
+    );
+  }
+
+  void _mostrarDetallesCita(BuildContext context, Cita cita) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        title: Row(
+          children: [
+            const Icon(
+              Icons.event,
+              color: Color.fromARGB(255, 237, 83, 65),
+            ),
+            const SizedBox(width: 8),
+            const Text('Detalles de la Cita'),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _detalleItem(Icons.person, 'Nombre', '${cita.nombre} ${cita.apellido}'),
+              const SizedBox(height: 12),
+              _detalleItem(Icons.phone, 'Teléfono', cita.telefono),
+              const SizedBox(height: 12),
+              _detalleItem(Icons.email, 'Email', cita.email),
+              const SizedBox(height: 12),
+              _detalleItem(Icons.directions_car, 'Vehículo', '${cita.marca} ${cita.modelo}'),
+              const SizedBox(height: 12),
+              _detalleItem(Icons.calendar_today, 'Año', cita.anio),
+              const SizedBox(height: 12),
+              _detalleItem(Icons.badge, 'Placas', cita.placas),
+              const SizedBox(height: 12),
+              _detalleItem(Icons.event_available, 'Fecha de Cita', cita.fechaCita),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cerrar',
+              style: TextStyle(
+                color: Color.fromARGB(255, 46, 5, 82),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _detalleItem(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: const Color.fromARGB(255, 46, 5, 82)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+              Text(
+                value,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class Cita {
+  final int id;
+  final String nombre;
+  final String apellido;
+  final String telefono;
+  final String email;
+  final String modelo;
+  final String marca;
+  final String anio;
+  final String placas;
+  final String fechaCita;
+
+  Cita({
+    required this.id,
+    required this.nombre,
+    required this.apellido,
+    required this.telefono,
+    required this.email,
+    required this.modelo,
+    required this.marca,
+    required this.anio,
+    required this.placas,
+    required this.fechaCita,
+  });
+
+  factory Cita.fromJson(Map<String, dynamic> json) {
+    return Cita(
+      id: json['id'],
+      nombre: json['Nombre'],
+      apellido: json['Apellido'],
+      telefono: json['Telefono'],
+      email: json['Email'],
+      modelo: json['Modelo'],
+      marca: json['Marca'],
+      anio: json['Anio'],
+      placas: json['Placas'],
+      fechaCita: json['FechaCita'],
     );
   }
 }
