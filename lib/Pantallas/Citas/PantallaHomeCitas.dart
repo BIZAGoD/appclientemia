@@ -86,113 +86,153 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : citas.isEmpty
-              ? Align(
-                  alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Citas',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 46, 5, 82),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Image.asset(
-                          'assets/Imageservicios.png',
-                          height: 400,
-                          width: 350,
-                          fit: BoxFit.contain,
-                        ),
-                        const Center(
-                          child: Text(
-                            'Aún no ha programado ninguna cita',
-                            style: TextStyle(
-                              fontSize: 25,
-                              color: Color.fromARGB(255, 155, 150, 158),
-                            ),
-                          ),
-                        ),
-                      ],
+          : Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 16.0),
+                  child: Text(
+                    'Citas',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 46, 5, 82),
                     ),
                   ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: citas.length,
-                  itemBuilder: (context, index) {
-                    final cita = citas[index];
-                    return Card(
-                      elevation: 4,
-                      margin: const EdgeInsets.only(bottom: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: InkWell(
-                        onTap: () => _mostrarDetallesCita(context, cita),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.calendar_month,
-                                    color: Color.fromARGB(255, 237, 83, 65),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    cita.fechaCita,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Divider(height: 16),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.directions_car,
-                                    color: Color.fromARGB(255, 46, 5, 82),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      '${cita.marca} ${cita.modelo} (${cita.anio})',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  TextButton(
-                                    onPressed: () => _mostrarDetallesCita(context, cita),
-                                    child: const Text(
-                                      'Ver detalles',
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 46, 5, 82),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
                 ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: citas.isEmpty
+                      ? Column(
+                          children: [
+                            Image.asset(
+                              'assets/Imageservicios.png',
+                              height: 400,
+                              width: 350,
+                              fit: BoxFit.contain,
+                            ),
+                            const Center(
+                              child: Text(
+                                'Aún no ha programado ninguna cita',
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  color: Color.fromARGB(255, 155, 150, 158),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: citas.length,
+                          itemBuilder: (context, index) {
+                            final cita = citas[index];
+                            return Card(
+                              elevation: 4,
+                              margin: const EdgeInsets.only(bottom: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: InkWell(
+                                onTap: () => _mostrarDetallesCita(context, cita),
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    gradient: const LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Colors.white,
+                                        Color.fromARGB(255, 245, 245, 245),
+                                      ],
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: const BoxDecoration(
+                                              color: Color.fromARGB(255, 237, 83, 65),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.calendar_today,
+                                              color: Colors.white,
+                                              size: 24,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  cita.fechaCita,
+                                                  style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Color.fromARGB(255, 46, 5, 82),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  '${cita.marca} ${cita.modelo}',
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const Divider(height: 20),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.directions_car,
+                                                color: Color.fromARGB(255, 46, 5, 82),
+                                                size: 20,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                cita.placas,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          TextButton(
+                                            onPressed: () => _mostrarDetallesCita(context, cita),
+                                            child: const Text(
+                                              'Ver detalles',
+                                              style: TextStyle(
+                                                color: Color.fromARGB(255, 237, 83, 65),
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
       drawer: Drawer(                                    //AQUI EMPIEZA EL DRAWER
         child: ListView(
           padding: EdgeInsets.zero,
