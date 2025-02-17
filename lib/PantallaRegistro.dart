@@ -72,7 +72,7 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
                     height: 200, // Mantiene la imagen con tamaño fijo
                     child: Image.asset(
                       'assets/logohome.png',
-                      fit: BoxFit.contain,
+                      fit: BoxFit.cover,
                     ),
                   ),
                   const Text(

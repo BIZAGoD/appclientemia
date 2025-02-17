@@ -59,16 +59,15 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
     }
 
     final Map<String, dynamic> citaData = {
-      "nombre": _nombreController.text,
-      "apellidos": _apellidosController.text,
-      "telefono": _telefonoController.text,
-      "correo": _correoController.text,
-      "modelo": _modeloController.text,
-      "marca": _marcaController.text,
-      "anio": _anioController.text,
-      "placas": _placasController.text,
-      "fecha": _fechaController.text,
-      "servicios": _serviciosController.text,
+      "Nombre": _nombreController.text,
+      "Apellido": _apellidosController.text,
+      "Telefono": _telefonoController.text,
+      "Email": _correoController.text,
+      "Modelo": _modeloController.text,
+      "Marca": _marcaController.text,
+      "Anio": _anioController.text,
+      "Placas": _placasController.text,
+      "FechaCita": _fechaController.text,
     };
 
     final url = Uri.parse(

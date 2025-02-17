@@ -96,14 +96,15 @@ class _PantallaInicioState extends State<PantallaInicio> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Center(
-                    child: Image.asset(
-                      'assets/logohome.png',
-                      height: 200,
-                      width: 300,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
+                    Center(
+                      child: Image.asset(
+                        'assets/logohome.png',
+                            height: 125,
+                            width: 300,
+                            fit: BoxFit.cover, // O prueba BoxFit.fitWidth
+                       ),
+                      ),
+
                   const SizedBox(height: 20),
                   const Text(
                     'Bienvenido de vuelta!',
@@ -176,7 +177,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                     ),
                     child: const Text(
-                      "Inicio de sesión",
+                      "Iniciar Sesion",
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),

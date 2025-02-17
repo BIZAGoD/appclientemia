@@ -56,65 +56,66 @@ class PantallaHomeFacturas extends StatelessWidget {
         ],
       ),
     
-       drawer: Drawer(             //AQUI EMPIEZA EL DRAWER
+       drawer: Drawer(                                    //AQUI EMPIEZA EL DRAWER
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
             const DrawerHeader(
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 9, 152, 177),
+                color: Color.fromARGB(255, 237, 83, 65),
               ),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.account_circle,
-                    size: 80,
-                    color: Colors.white,
-                  ),
-                  SizedBox(width: 16),
-                  Text(
-                    'Anahi Gonzales',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+            crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+            Image(
+            image: AssetImage('assets/perfil.png'),
+            width: 80,                                  // Ajusta el tamaño de la imagen si es necesario
+            height: 80,                                 // Ajusta el tamaño de la imagen si es necesario
+            ),
+          SizedBox(width: 16),
+          Text(
+              'Anahi Gonzales',
+                  style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
               ),
             ),
+          ],
+        ),
+            ),
             ListTile(
-              iconColor: const Color.fromARGB(255, 46, 5, 82),
+              iconColor: Color.fromARGB(255, 46, 5, 82),
               leading: const Icon(Icons.person),
               title: const Text('Perfil'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PantallaPerfil()), // Navega a Perfil
+                  MaterialPageRoute(builder: (context) => const PantallaPerfil()),         // Navega a Perfil
                 );
               },
             ),
             ListTile(
-              iconColor: const Color.fromARGB(255, 46, 5, 82),
+              iconColor: Color.fromARGB(255, 46, 5, 82),
               leading: const Icon(Icons.brightness_6),
               title: const Text('Modo Oscuro'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PantallaModoOscuro()),       // Navega a Modo Oscuro
+                  MaterialPageRoute(builder: (context) => const PantallaModoOscuro()),          // Navega a Modo oscuro
                 );
+               
               },
             ),
             ListTile(
-              iconColor: const Color.fromARGB(255, 46, 5, 82),
+              iconColor: Color.fromARGB(255, 144, 2, 2),
               leading: const Icon(Icons.logout),
               title: const Text('Cerrar Sesión'),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PantallaCerrarSesion()),      // Navega a Cerrar Sesión
-                );
+               Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PantallaCerrarSesion()),          // Navega a Cerrar Sesión
+               );
               },
             ),
           ],
