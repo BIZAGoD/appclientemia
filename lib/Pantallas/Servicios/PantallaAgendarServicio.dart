@@ -87,13 +87,6 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cita agendada exitosamente'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
