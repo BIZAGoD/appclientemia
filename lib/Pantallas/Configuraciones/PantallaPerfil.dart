@@ -1,6 +1,7 @@
 import 'package:appcliente/Pantallas/Configuraciones/PantallaCerrarSesion.dart';
+import 'package:appcliente/Pantallas/Configuraciones/PantallaEdit.dart'; // Importar PantallaEdit.dart
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';    //DE AQUI SE OBTIENEN LOS DATOS DE CADA USUARIO
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PantallaPerfil extends StatefulWidget {
   const PantallaPerfil({super.key});
@@ -23,8 +24,15 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
   Future<void> _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      userName = prefs.getString('name');           // Recupera el nombre guardado
-      userEmail = prefs.getString('email');         // Recupera el correo guardado
+      userName = prefs.getString('name') ?? 'Nombre no disponible';
+      userEmail = prefs.getString('email') ?? 'Correo no disponible';
+    });
+  }
+
+  // Recargar los datos después de editar
+  void _refreshData() {
+    setState(() {
+      _loadUserData();
     });
   }
 
@@ -64,7 +72,7 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      userName ?? 'Nombre no disponible',
+                      userName!,
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
@@ -73,7 +81,7 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      userEmail ?? 'Correo no disponible',
+                      userEmail!,
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black54,
@@ -85,8 +93,18 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
                       child: Column(
                         children: [
                           ElevatedButton(
-                            onPressed: () {
-                              print('Editar perfil');
+                            onPressed: () async {
+                              // Navegar a PantallaEdit y recargar datos al volver
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PantallaEdit(
+                                    userName: userName!,
+                                    userEmail: userEmail!,
+                                  ),
+                                ),
+                              );
+                              _refreshData(); // Recargar datos después de volver
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color.fromARGB(255, 237, 83, 65),
