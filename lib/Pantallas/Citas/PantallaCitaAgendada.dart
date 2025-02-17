@@ -30,7 +30,7 @@ class PantallaCitaAgendada extends StatelessWidget {
                 ),
               ),
               const Text(
-                'Cita Agendada Exitosamente',
+                'Cita Agendada',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 28,
