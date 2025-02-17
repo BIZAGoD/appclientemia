@@ -47,8 +47,10 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
     );
     if (fechaSeleccionada != null) {
       setState(() {
-        _fechaController.text =
-            "${fechaSeleccionada.day}/${fechaSeleccionada.month}/${fechaSeleccionada.year}";
+        _fechaController.text = 
+            "${fechaSeleccionada.day.toString().padLeft(2, '0')}-"
+            "${fechaSeleccionada.month.toString().padLeft(2, '0')}-"
+            "${fechaSeleccionada.year}";
       });
     }
   }
@@ -68,6 +70,7 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
       "Anio": _anioController.text,
       "Placas": _placasController.text,
       "FechaCita": _fechaController.text,
+      "Servicios": _serviciosController.text,
     };
 
     final url = Uri.parse(
@@ -76,26 +79,43 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
     try {
       final response = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
         body: json.encode(citaData),
       );
 
-      if (response.statusCode == 201) {
-        // Cita agendada con éxito, redirige a PantallaCitaAgendada
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cita agendada exitosamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
               builder: (context) => const PantallaCitaAgendada()),
         );
       } else {
+        Map<String, dynamic> errorResponse = json.decode(response.body);
+        String errorMessage = errorResponse['message'] ?? 'Error al agendar la cita. Inténtelo de nuevo.';
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Error al agendar la cita. Inténtelo de nuevo.')),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error de conexión: $e')),
+        SnackBar(
+          content: Text('Error de conexión: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
