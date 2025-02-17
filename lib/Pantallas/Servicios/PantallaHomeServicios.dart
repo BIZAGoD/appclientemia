@@ -43,7 +43,7 @@ class PantallaHomeservicios extends StatelessWidget {
                     child: Text(
                       'Aún no ha solicitado ningún servicio',
                       style: TextStyle(
-                        fontSize: 23,
+                        fontSize: 25,
                         color: Color.fromARGB(255, 155, 150, 158),
                       ),
                     ),
