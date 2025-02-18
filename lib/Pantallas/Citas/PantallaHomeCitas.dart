@@ -214,7 +214,7 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
                                           TextButton(
                                             onPressed: () => _mostrarDetallesCita(context, cita),
                                             child: const Text(
-                                              'Ver detalles',
+                                              'Detalles',
                                               style: TextStyle(
                                                 color: Color.fromARGB(255, 237, 83, 65),
                                                 fontWeight: FontWeight.bold,
@@ -333,20 +333,6 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
         selectedItemColor: const Color.fromARGB(255, 46, 5, 82),
         unselectedItemColor: const Color.fromARGB(255, 237, 83, 65),
       ),
-
-
-   ///   floatingActionButton: FloatingActionButton(     //AQUI EMPIEZA LO DEL BOTON DE AGREGAR CITA
-      //  onPressed: () {
-          // Abrir pantalla de agregar servicio
-        //  Navigator.push(
-          //  context,
-         //   MaterialPageRoute(builder: (context) => const AgregarServicioScreen()),
-        //  );
-       // },
-       // backgroundColor: const Color.fromARGB(255, 46, 5, 82),
-      //  child: const Icon(Icons.post_add, color: Colors.white),
-     // ),
-
     );
   }
 
@@ -385,6 +371,8 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
               _detalleItem(Icons.badge, 'Placas', cita.placas),
               const SizedBox(height: 12),
               _detalleItem(Icons.event_available, 'Fecha de Cita', cita.fechaCita),
+              const SizedBox(height: 12),
+              _detalleItem(Icons.store, 'Taller', cita.taller),
             ],
           ),
         ),
@@ -443,6 +431,7 @@ class Cita {
   final String anio;
   final String placas;
   final String fechaCita;
+  final String taller;
 
   Cita({
     required this.id,
@@ -455,6 +444,7 @@ class Cita {
     required this.anio,
     required this.placas,
     required this.fechaCita,
+    required this.taller,
   });
 
   factory Cita.fromJson(Map<String, dynamic> json) {
@@ -469,6 +459,7 @@ class Cita {
       anio: json['Anio'],
       placas: json['Placas'],
       fechaCita: json['FechaCita'],
+      taller: json['Taller'] ?? 'No especificado',
     );
   }
 }
