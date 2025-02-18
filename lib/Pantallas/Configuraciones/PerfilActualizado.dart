@@ -1,0 +1,78 @@
+import 'package:flutter/material.dart';
+import 'package:appcliente/Pantallas/Servicios/PantallaHomeServicios.dart';
+
+class PantallaDatosActualizados extends StatelessWidget {
+  const PantallaDatosActualizados({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color.fromARGB(255, 255, 255, 255), Color.fromARGB(255, 255, 255, 255)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Image.asset(
+                  'assets/verify3.png', 
+                  height: 225,
+                  width: 300,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.check_circle, size: 100, color: Colors.green);
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Datos Actualizados',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 0, 0, 0),
+                ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                '¡Tu información ha sido actualizada correctamente!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Color.fromARGB(255, 32, 31, 31),
+                ),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: () {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const PantallaHomeservicios()),
+                    );
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: const Color.fromARGB(255, 247, 247, 247),
+                  backgroundColor: const Color.fromARGB(255, 46, 5, 82),
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  textStyle: const TextStyle(fontSize: 16),
+                ),
+                child: const Text("Volver al inicio"),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

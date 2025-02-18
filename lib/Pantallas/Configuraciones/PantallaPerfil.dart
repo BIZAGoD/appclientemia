@@ -65,10 +65,39 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const CircleAvatar(
-                      radius: 80,
-                      backgroundImage: AssetImage('assets/perfil.png'),
-                      backgroundColor: Colors.white,
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Icon(
+                          Icons.account_circle,
+                          size: 160,
+                          color: Color.fromARGB(255, 77, 82, 82),
+                        ),
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: IconButton(
+                            icon: const Icon(Icons.mode_edit, color: Colors.white, size: 24),
+                            style: IconButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(255, 77, 82, 82),
+                              padding: const EdgeInsets.all(8),
+                              shape: const CircleBorder(),
+                            ),
+                            onPressed: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PantallaEdit(
+                                    userName: userName!,
+                                    userEmail: userEmail!,
+                                  ),
+                                ),
+                              );
+                              _refreshData();
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 20),
                     Text(
@@ -94,7 +123,6 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
                         children: [
                           ElevatedButton(
                             onPressed: () async {
-                              // Navegar a PantallaEdit y recargar datos al volver
                               await Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -104,7 +132,7 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
                                   ),
                                 ),
                               );
-                              _refreshData(); // Recargar datos después de volver
+                              _refreshData();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color.fromARGB(255, 237, 83, 65),
