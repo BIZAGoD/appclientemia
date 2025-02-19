@@ -17,7 +17,6 @@ class PantallaEdit extends StatefulWidget {
 class _PantallaEditState extends State<PantallaEdit> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -32,7 +31,6 @@ class _PantallaEditState extends State<PantallaEdit> {
     setState(() {
       _nameController.text = prefs.getString('name') ?? widget.userName;
       _lastNameController.text = prefs.getString('lastName') ?? '';
-      _emailController.text = prefs.getString('email') ?? widget.userEmail;
       _phoneController.text = prefs.getString('phone') ?? '';
       _passwordController.text = prefs.getString('password') ?? '';
     });
@@ -59,7 +57,7 @@ class _PantallaEditState extends State<PantallaEdit> {
     Map<String, dynamic> body = {
       'Nombre': _nameController.text,
       'Apellido': _lastNameController.text,
-      'Email': _emailController.text,
+      'Email': widget.userEmail,
       'Telefono': _phoneController.text,
       'Clave': _passwordController.text,
     };
@@ -74,7 +72,6 @@ class _PantallaEditState extends State<PantallaEdit> {
       if (response.statusCode == 200) {
         await prefs.setString('name', _nameController.text);
         await prefs.setString('lastName', _lastNameController.text);
-        await prefs.setString('email', _emailController.text);
         await prefs.setString('phone', _phoneController.text);
         await prefs.setString('password', _passwordController.text);
 
@@ -115,11 +112,6 @@ class _PantallaEditState extends State<PantallaEdit> {
             TextField(
               controller: _lastNameController,
               decoration: const InputDecoration(labelText: 'Apellido'),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Correo electrónico'),
             ),
             const SizedBox(height: 10),
             TextField(
