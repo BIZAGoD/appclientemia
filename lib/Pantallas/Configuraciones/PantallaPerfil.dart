@@ -46,7 +46,7 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
         centerTitle: true,
         title: const Text(
           'Perfil',
-          style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.normal),
         ),
       ),
       body: userName == null || userEmail == null
@@ -105,7 +105,7 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
-                        color: Colors.teal,
+                        color: Color.fromARGB(255, 46, 5, 82),
                       ),
                     ),
                     const SizedBox(height: 8),

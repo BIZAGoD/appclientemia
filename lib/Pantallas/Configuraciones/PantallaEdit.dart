@@ -94,47 +94,193 @@ class _PantallaEditState extends State<PantallaEdit> {
 
   @override
   Widget build(BuildContext context) {
+    final Color naranjaColor = Color.fromARGB(255, 237, 83, 65);
+    final Color purpuraColor = Color.fromARGB(255, 46, 5, 82);
+
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Editar Perfil', style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color.fromARGB(255, 237, 83, 65),
+        title: const Text('Editar Perfil', 
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.normal,
+            fontSize: 22,
+          )
+        ),
+        backgroundColor: naranjaColor,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Nombre'),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _lastNameController,
-              decoration: const InputDecoration(labelText: 'Apellido'),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _phoneController,
-              decoration: const InputDecoration(labelText: 'Teléfono'),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Contraseña'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _saveChanges,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 237, 83, 65),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              const CircleAvatar(
+                radius: 50,
+                backgroundColor: Color.fromARGB(255, 237, 83, 65),
+                child: Icon(Icons.person, size: 50, color: Colors.white),
               ),
-              child: const Text('Guardar cambios', style: TextStyle(color: Colors.white)),
-            ),
-          ],
+              const SizedBox(height: 30),
+              buildTextField(
+                _nameController, 
+                'Nombre',
+                naranjaColor,
+                Icons.person_outline,
+              ),
+              const SizedBox(height: 20),
+              buildTextField(
+                _lastNameController, 
+                'Apellido',
+                naranjaColor,
+                Icons.person_outline,
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  enabled: false,
+                  controller: TextEditingController(text: widget.userEmail),
+                  style: const TextStyle(fontSize: 16),
+                  decoration: InputDecoration(
+                    labelText: 'Correo electrónico',
+                    labelStyle: TextStyle(color: naranjaColor),
+                    prefixIcon: Icon(Icons.email_outlined, color: naranjaColor),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: naranjaColor.withOpacity(0.3)),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: naranjaColor.withOpacity(0.3)),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              buildTextField(
+                _phoneController, 
+                'Teléfono',
+                naranjaColor,
+                Icons.phone_outlined,
+              ),
+              const SizedBox(height: 20),
+              buildTextField(
+                _passwordController, 
+                'Contraseña',
+                naranjaColor,
+                Icons.lock_outline,
+                isPassword: true,
+                showEyeIcon: true,
+              ),
+              const SizedBox(height: 40),
+              Container(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: _saveChanges,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: purpuraColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 5,
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.save, color: Colors.white),
+                      SizedBox(width: 10),
+                      Text(
+                        'Guardar cambios',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget buildTextField(
+    TextEditingController controller,
+    String label,
+    Color primaryColor,
+    IconData icon, {
+    bool isPassword = false,
+    bool showEyeIcon = false,
+  }) {
+    bool _obscureText = isPassword;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: TextField(
+            controller: controller,
+            obscureText: _obscureText,
+            style: const TextStyle(fontSize: 16),
+            decoration: InputDecoration(
+              labelText: label,
+              labelStyle: TextStyle(color: primaryColor),
+              prefixIcon: Icon(icon, color: primaryColor),
+              suffixIcon: showEyeIcon 
+                ? IconButton(
+                    icon: Icon(
+                      _obscureText ? Icons.visibility_off : Icons.visibility,
+                      color: primaryColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
+                  )
+                : null,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide(color: primaryColor.withOpacity(0.3)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide(color: primaryColor, width: 2),
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            ),
+          ),
+        );
+      }
     );
   }
 }
