@@ -300,7 +300,7 @@ class ShimmerLoading extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Verificando credenciales...',
+                  '',
                   style: TextStyle(
                     color: Color.fromARGB(255, 46, 5, 82),
                     fontSize: 16,

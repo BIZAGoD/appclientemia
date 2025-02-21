@@ -171,10 +171,22 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Agendar nueva cita',
+        title: const Text('Nueva Cita',
             style: TextStyle(fontSize: 18, color: Colors.white)),
-        backgroundColor: const Color.fromARGB(255, 237, 83, 65),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromARGB(255, 46, 5, 82),
+                Color.fromARGB(255, 237, 83, 65),
+              ],
+            ),
+          ),
+        ),
       ),
+      
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
