@@ -27,17 +27,13 @@ flutter:
   # Aquí agregamos la sección de assets
   assets:
 
-     - assets/verify3.png
-     - assets/imageservicios.png
-     - assets/imagetaller.png
-     - assets/perfil.png
-     - assets/logohome.png
-
      - assets/verify3.webp
      - assets/imageservicios.webp
      - assets/imagetaller.webp
      - assets/perfil.webp
      - assets/logohome.webp
+     - assets/pantalla-de-carga.webp
+     - assets/ZKZg.gif
      
       # Ruta de la imagen que quieres usar
 
