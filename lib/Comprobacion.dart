@@ -23,7 +23,7 @@ class Comprobacion extends StatelessWidget {
             children: [
               Center(
                 child: Image.asset(
-                  'assets/verify3.png',
+                  'assets/verify3.webp',
                   height: 225,
                   width: 300,
                   fit: BoxFit.contain,

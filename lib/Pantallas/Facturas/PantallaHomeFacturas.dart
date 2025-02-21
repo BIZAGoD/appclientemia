@@ -34,7 +34,7 @@ class PantallaHomeFacturas extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   Image.asset(                //IMAGEN DE FACTURAS
-                    'assets/imageservicios.png',
+                    'assets/imageservicios.webp',
                     height: 400,
                     width: 350,
                     fit: BoxFit.contain,
@@ -68,7 +68,7 @@ class PantallaHomeFacturas extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
               children: [
             Image(
-            image: AssetImage('assets/perfil.png'),
+            image: AssetImage('assets/perfil.webp'),
             width: 80,                                  // Ajusta el tamaño de la imagen si es necesario
             height: 80,                                 // Ajusta el tamaño de la imagen si es necesario
             ),

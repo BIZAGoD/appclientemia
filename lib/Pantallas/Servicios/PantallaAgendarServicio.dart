@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:appcliente/Pantallas/Citas/PantallaCitaAgendada.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PantallaAgendarServicio extends StatefulWidget {
   const PantallaAgendarServicio({super.key});
@@ -23,19 +24,41 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
   final TextEditingController _placasController = TextEditingController();
   final TextEditingController _serviciosController = TextEditingController();
 
+  bool _datosGuardados = false;
+
   @override
-  void dispose() {
-    _fechaController.dispose();
-    _nombreController.dispose();
-    _apellidosController.dispose();
-    _telefonoController.dispose();
-    _correoController.dispose();
-    _modeloController.dispose();
-    _marcaController.dispose();
-    _anioController.dispose();
-    _placasController.dispose();
-    _serviciosController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _cargarDatosGuardados();
+  }
+
+  Future<void> _cargarDatosGuardados() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _nombreController.text = prefs.getString('nombre') ?? '';
+      _apellidosController.text = prefs.getString('apellidos') ?? '';
+      _telefonoController.text = prefs.getString('telefono') ?? '';
+      _correoController.text = prefs.getString('correo') ?? '';
+      _modeloController.text = prefs.getString('modelo') ?? '';
+      _marcaController.text = prefs.getString('marca') ?? '';
+      _anioController.text = prefs.getString('anio') ?? '';
+      _placasController.text = prefs.getString('placas') ?? '';
+      
+      // Verificar si ya hay datos guardados
+      _datosGuardados = prefs.getString('nombre')?.isNotEmpty ?? false;
+    });
+  }
+
+  Future<void> _guardarDatos() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('nombre', _nombreController.text);
+    await prefs.setString('apellidos', _apellidosController.text);
+    await prefs.setString('telefono', _telefonoController.text);
+    await prefs.setString('correo', _correoController.text);
+    await prefs.setString('modelo', _modeloController.text);
+    await prefs.setString('marca', _marcaController.text);
+    await prefs.setString('anio', _anioController.text);
+    await prefs.setString('placas', _placasController.text);
   }
 
   void _seleccionarFecha() async {
@@ -56,8 +79,23 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
   }
 
   Future<void> _agendarCita() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
+    // Validar solo el campo de fecha si los datos ya están guardados
+    if (_datosGuardados) {
+      if (_fechaController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Por favor seleccione una fecha para la cita'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    } else {
+      // Validar todos los campos si es la primera vez
+      if (!_formKey.currentState!.validate()) {
+        return;
+      }
+      await _guardarDatos();
     }
 
     final Map<String, dynamic> citaData = {
@@ -114,6 +152,21 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
   }
 
   @override
+  void dispose() {
+    _fechaController.dispose();
+    _nombreController.dispose();
+    _apellidosController.dispose();
+    _telefonoController.dispose();
+    _correoController.dispose();
+    _modeloController.dispose();
+    _marcaController.dispose();
+    _anioController.dispose();
+    _placasController.dispose();
+    _serviciosController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -130,21 +183,23 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSectionTitle('Datos del Cliente'),
-                _buildTextField('Nombre del Cliente', _nombreController),
-                _buildTextField('Apellidos', _apellidosController),
-                _buildTextField('Teléfono de Contacto', _telefonoController,
-                    keyboardType: TextInputType.phone),
-                _buildTextField('Correo Electrónico', _correoController,
-                    keyboardType: TextInputType.emailAddress),
+                if (!_datosGuardados) ...[
+                  _buildSectionTitle('Datos del Cliente'),
+                  _buildTextField('Nombre del Cliente', _nombreController),
+                  _buildTextField('Apellidos', _apellidosController),
+                  _buildTextField('Teléfono de Contacto', _telefonoController,
+                      keyboardType: TextInputType.phone),
+                  _buildTextField('Correo Electrónico', _correoController,
+                      keyboardType: TextInputType.emailAddress),
 
-                const SizedBox(height: 20),
-                _buildSectionTitle('Datos del Vehículo'),
-                _buildTextField('Modelo del Vehículo', _modeloController),
-                _buildTextField('Marca del Vehículo', _marcaController),
-                _buildTextField('Año del Vehículo', _anioController,
-                    keyboardType: TextInputType.number),
-                _buildTextField('Placas del Vehículo', _placasController),
+                  const SizedBox(height: 20),
+                  _buildSectionTitle('Datos del Vehículo'),
+                  _buildTextField('Modelo del Vehículo', _modeloController),
+                  _buildTextField('Marca del Vehículo', _marcaController),
+                  _buildTextField('Año del Vehículo', _anioController,
+                      keyboardType: TextInputType.number),
+                  _buildTextField('Placas del Vehículo', _placasController),
+                ],
 
                 const SizedBox(height: 20),
                 TextFormField(

@@ -12,8 +12,9 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   http: ^1.3.0
-  shared_preferences: ^2.0.15
+  shared_preferences: ^2.2.2
   intl: ^0.17.0
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
@@ -31,6 +32,12 @@ flutter:
      - assets/imagetaller.png
      - assets/perfil.png
      - assets/logohome.png
+
+     - assets/verify3.webp
+     - assets/imageservicios.webp
+     - assets/imagetaller.webp
+     - assets/perfil.webp
+     - assets/logohome.webp
      
       # Ruta de la imagen que quieres usar
 
