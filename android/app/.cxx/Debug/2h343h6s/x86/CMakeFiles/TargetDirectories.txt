@@ -1,0 +1,2 @@
+C:/Users/brand/Downloads/appmia/appclientes/appclientemia/android/app/.cxx/Debug/2h343h6s/x86/CMakeFiles/edit_cache.dir
+C:/Users/brand/Downloads/appmia/appclientes/appclientemia/android/app/.cxx/Debug/2h343h6s/x86/CMakeFiles/rebuild_cache.dir
