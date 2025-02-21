@@ -37,10 +37,6 @@ class _PantallaInicioState extends State<PantallaInicio> {
       claveError = null;
     });
 
-    // Aseguramos un tiempo mínimo de carga para que la animación se vea bien
-    final minLoadingDuration = Duration(milliseconds: 2500); // 2.5 segundos
-    final loadingStartTime = DateTime.now();
-
     if (emailController.text.isEmpty || claveController.text.isEmpty) {
       setState(() {
         emailError = emailController.text.isEmpty ? "Ingrese un correo" : null;
@@ -70,12 +66,11 @@ class _PantallaInicioState extends State<PantallaInicio> {
           final prefs = await SharedPreferences.getInstance();
           await Future.wait([
             prefs.setInt('userId', usuarioEncontrado["id"]),
-            prefs.setString('nombre', usuarioEncontrado["Nombre"]),
-            prefs.setString('apellido', usuarioEncontrado["Apellido"]),
+            prefs.setString('name', usuarioEncontrado["Nombre"]),
+            prefs.setString('lastName', usuarioEncontrado["Apellido"]),
             prefs.setString('email', usuarioEncontrado["Email"]),
-            prefs.setString('telefono', usuarioEncontrado["Telefono"]),
-            prefs.setString('nombreCompleto', 
-              "${usuarioEncontrado["Nombre"]} ${usuarioEncontrado["Apellido"]}")
+            prefs.setString('phone', usuarioEncontrado["Telefono"]),
+            prefs.setString('password', usuarioEncontrado["Clave"]),
           ]);
 
           if (!mounted) return;
@@ -97,13 +92,6 @@ class _PantallaInicioState extends State<PantallaInicio> {
       _mostrarError("Ocurrió un error");
       debugPrint('Error en login: $e');
     } finally {
-      // Antes de finalizar el loading, aseguramos el tiempo mínimo
-      final loadingEndTime = DateTime.now();
-      final actualDuration = loadingEndTime.difference(loadingStartTime);
-      if (actualDuration < minLoadingDuration) {
-        await Future.delayed(minLoadingDuration - actualDuration);
-      }
-
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -202,7 +190,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
                         alignment: Alignment.center,
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(builder: (context) => const Recuperacionpassword()),
                             );
@@ -279,7 +267,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
 }
 
 class ShimmerLoading extends StatelessWidget {
-  const ShimmerLoading({Key? key}) : super(key: key);
+  const ShimmerLoading({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -331,6 +319,65 @@ class ShimmerLoading extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class ShimmerEffect extends StatefulWidget {
+  final Widget child;
+
+  const ShimmerEffect({super.key, required this.child});
+
+  @override
+  _ShimmerEffectState createState() => _ShimmerEffectState();
+}
+
+class _ShimmerEffectState extends State<ShimmerEffect>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat();
+    _animation = Tween<double>(begin: -2, end: 2).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return ShaderMask(
+          shaderCallback: (bounds) {
+            return LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: const [
+                Colors.grey,
+                Colors.white,
+                Colors.grey,
+              ],
+              stops: [
+                0.0,
+                _animation.value,
+                1.0,
+              ],
+            ).createShader(bounds);
+          },
+          child: widget.child,
+        );
+      },
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:appcliente/Pantallas/Configuraciones/PantallaCerrarSesion.dart';
 import 'package:appcliente/Pantallas/Configuraciones/PantallaEdit.dart'; // Importar PantallaEdit.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 class PantallaPerfil extends StatefulWidget {
   const PantallaPerfil({super.key});
@@ -13,6 +14,7 @@ class PantallaPerfil extends StatefulWidget {
 class _PantallaPerfilState extends State<PantallaPerfil> {
   String? userName;
   String? userEmail;
+  String? userImagePath;
 
   @override
   void initState() {
@@ -24,8 +26,9 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
   Future<void> _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      userName = prefs.getString('name') ?? 'Nombre no disponible';
+      userName = '${prefs.getString('name') ?? 'Nombre no disponible'} ${prefs.getString('lastName') ?? ''}';
       userEmail = prefs.getString('email') ?? 'Correo no disponible';
+      userImagePath = prefs.getString('userImagePath');
     });
   }
 
@@ -68,10 +71,17 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
                     Stack(
                       alignment: Alignment.center,
                       children: [
-                        const Icon(
-                          Icons.account_circle,
-                          size: 160,
-                          color: Color.fromARGB(255, 77, 82, 82),
+                        CircleAvatar(
+                          radius: 80,
+                          backgroundColor: const Color.fromARGB(255, 77, 82, 82),
+                          backgroundImage: userImagePath != null ? FileImage(File(userImagePath!)) : null,
+                          child: userImagePath == null
+                              ? const Icon(
+                                  Icons.account_circle,
+                                  size: 160,
+                                  color: Colors.white,
+                                )
+                              : null,
                         ),
                         Positioned(
                           right: 0,

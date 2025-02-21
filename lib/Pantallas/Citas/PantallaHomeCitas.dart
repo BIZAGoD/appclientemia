@@ -22,7 +22,7 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
   String? userEmail;
   String userName = '';
 
-  @override
+  @override 
   void initState() {
     super.initState();
     obtenerUsuarioYCargarCitas();
@@ -32,7 +32,7 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
   Future<void> _cargarDatosUsuario() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      userName = '${prefs.getString('nombre') ?? ''} ${prefs.getString('apellido') ?? ''}';
+      userName = '${prefs.getString('name') ?? ''} ${prefs.getString('lastName') ?? ''}';
     });
   }
 
@@ -125,14 +125,14 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
                       ? Column(
                           children: [
                             Image.asset(
-                              'assets/Imageservicios.webp',
+                              'assets/imageservicios.webp',
                               height: 400,
                               width: 350,
                               fit: BoxFit.contain,
                             ),
                             const Center(
                               child: Text(
-                                'Aún no ha programado ninguna cita',
+                                'Sin Citas',
                                 style: TextStyle(
                                   fontSize: 25,
                                   color: Color.fromARGB(255, 155, 150, 158),

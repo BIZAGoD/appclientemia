@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:appcliente/PantallaInicio.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   _SplashScreenState createState() => _SplashScreenState();
@@ -65,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         child: FadeTransition(
           opacity: _animation,
           child: Image.asset(
-            'assets/pantalla-de-carga.webp', // Tu imagen aquí
+            'assets/pantalla-de-carga1.webp', // Tu imagen aquí
             fit: BoxFit.cover,
           ),
         ),

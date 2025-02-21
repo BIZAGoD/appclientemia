@@ -6,6 +6,7 @@ import 'package:appcliente/Pantallas/Configuraciones/PantallaPerfil.dart';
 import 'package:appcliente/Pantallas/Servicios/PantallaAgregarTaller.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 class PantallaHomeservicios extends StatefulWidget {
   const PantallaHomeservicios({super.key});
@@ -16,6 +17,7 @@ class PantallaHomeservicios extends StatefulWidget {
 
 class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
   String userName = '';
+  String? userImagePath;
 
   @override
   void initState() {
@@ -26,7 +28,8 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
   Future<void> _cargarDatosUsuario() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      userName = '${prefs.getString('nombre') ?? ''} ${prefs.getString('apellido') ?? ''}';
+      userName = '${prefs.getString('name') ?? ''} ${prefs.getString('lastName') ?? ''}';
+      userImagePath = prefs.getString('userImagePath');
     });
   }
 
@@ -73,7 +76,7 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
                   ),
                   const Center(
                     child: Text(
-                      'Aún no ha solicitado ningún servicio',
+                      'Sin servicios',
                       style: TextStyle(
                         fontSize: 25,
                         color: Color.fromARGB(255, 155, 150, 158),
@@ -87,7 +90,7 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
         ],
       ),
 
-      drawer: Drawer(
+      drawer: Drawer(               //AQUI EMPIEZA EL DRAWER
         child: Column(
           children: [
             Container(
@@ -116,9 +119,12 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
                         width: 3,
                       ),
                     ),
-                    child: const CircleAvatar(
+                    child: CircleAvatar(
                       radius: 45,
-                      backgroundImage: AssetImage('assets/perfil.webp'),
+                      backgroundColor: Colors.white,
+                      backgroundImage: userImagePath != null 
+                          ? FileImage(File(userImagePath!))
+                          : const AssetImage('assets/perfil.webp') as ImageProvider,
                     ),
                   ),
                   Text(
@@ -238,6 +244,7 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
           ],
         ),
       ),
+
 
       bottomNavigationBar: BottomNavigationBar(        //AQUI EMPIEZA EL BOTTOM NAVIGATION BAR
         items: const [

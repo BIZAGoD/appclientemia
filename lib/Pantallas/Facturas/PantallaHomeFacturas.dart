@@ -25,7 +25,7 @@ class _PantallaHomeFacturasState extends State<PantallaHomeFacturas> {
   Future<void> _cargarDatosUsuario() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      userName = '${prefs.getString('nombre') ?? ''} ${prefs.getString('apellido') ?? ''}';
+      userName = '${prefs.getString('name') ?? ''} ${prefs.getString('lastName') ?? ''}';
     });
   }
 
@@ -74,7 +74,7 @@ class _PantallaHomeFacturasState extends State<PantallaHomeFacturas> {
 
                   const Center(
                     child: Text(
-                      'Aún no ha solicitado ninguna factura',
+                      'Sin Facturas',
                       style: TextStyle(
                         fontSize: 23,
                         color: Color.fromARGB(255, 155, 150, 158),
@@ -88,7 +88,7 @@ class _PantallaHomeFacturasState extends State<PantallaHomeFacturas> {
         ],
       ),
     
-      drawer: Drawer(               //AQUI EMPIEZA EL DRAWER
+     drawer: Drawer(               //AQUI EMPIEZA EL DRAWER
         child: Column(
           children: [
             Container(

@@ -65,16 +65,39 @@ class PantallaCerrarSesion extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () async {
-                  // Eliminar datos de sesión
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                  await prefs.remove('user_token'); // O la clave que estés usando
+                  try {
+                    // Limpiar todos los datos del usuario
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    
+                    // Limpieza específica de datos del usuario
+                    await prefs.remove('nombre');
+                    await prefs.remove('apellido');
+                    await prefs.remove('telefono');
+                    await prefs.remove('correo');
+                    await prefs.remove('userId');
+                    await prefs.remove('userToken');
+                    await prefs.remove('imagenPerfil');
+                    // Limpia el resto de las preferencias por si acaso
+                    await prefs.clear();
 
-                  // Navegar a la pantalla de inicio
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const PantallaInicio()), 
-                    (Route<dynamic> route) => false, // Elimina todas las pantallas previas
-                  );
+                    // Navegar a la pantalla de inicio y limpiar la pila de navegación
+                    if (context.mounted) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const PantallaInicio()), 
+                        (Route<dynamic> route) => false,
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Error al cerrar sesión. Intente nuevamente.'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
                 },
                 child: const Text(
                   'Cerrar sesión',

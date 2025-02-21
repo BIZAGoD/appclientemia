@@ -43,6 +43,11 @@ class _PantallaEditState extends State<PantallaEdit> {
   Future<void> _saveChanges() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
+    // Guardar la ruta de la imagen si existe
+    if (_imageFile != null) {
+      await prefs.setString('userImagePath', _imageFile!.path);
+    }
+
     int? userId = prefs.getInt('userId');
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -76,14 +81,21 @@ class _PantallaEditState extends State<PantallaEdit> {
       if (response.statusCode == 200) {
         await prefs.setString('name', _nameController.text);
         await prefs.setString('lastName', _lastNameController.text);
+        await prefs.setString('email', widget.userEmail);
         await prefs.setString('phone', _phoneController.text);
         await prefs.setString('password', _passwordController.text);
+        
+        // Si hay una imagen nueva, guardar su ruta
+        if (_imageFile != null) {
+          await prefs.setString('userImagePath', _imageFile!.path);
+        }
 
-        // Redirigir a la pantalla PerfilActualizado
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const PantallaDatosActualizados()), 
-        );
+        if (context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const PantallaDatosActualizados()), 
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al actualizar: ${response.body}')),
@@ -262,7 +274,7 @@ class _PantallaEditState extends State<PantallaEdit> {
                 showEyeIcon: true,
               ),
               const SizedBox(height: 40),
-              Container(
+              SizedBox(
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
@@ -306,7 +318,7 @@ class _PantallaEditState extends State<PantallaEdit> {
     bool isPassword = false,
     bool showEyeIcon = false,
   }) {
-    bool _obscureText = isPassword;
+    bool obscureText = isPassword;
 
     return StatefulBuilder(
       builder: (context, setState) {
@@ -324,7 +336,7 @@ class _PantallaEditState extends State<PantallaEdit> {
           ),
           child: TextField(
             controller: controller,
-            obscureText: _obscureText,
+            obscureText: obscureText,
             style: const TextStyle(fontSize: 16),
             decoration: InputDecoration(
               labelText: label,
@@ -333,12 +345,12 @@ class _PantallaEditState extends State<PantallaEdit> {
               suffixIcon: showEyeIcon 
                 ? IconButton(
                     icon: Icon(
-                      _obscureText ? Icons.visibility_off : Icons.visibility,
+                      obscureText ? Icons.visibility_off : Icons.visibility,
                       color: primaryColor,
                     ),
                     onPressed: () {
                       setState(() {
-                        _obscureText = !_obscureText;
+                        obscureText = !obscureText;
                       });
                     },
                   )
