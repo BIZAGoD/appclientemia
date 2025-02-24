@@ -64,18 +64,6 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
-    // Mostrar indicador de carga
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-
     await _guardarDatos();
 
     final Map<String, dynamic> citaData = {
@@ -99,9 +87,6 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
         body: json.encode(citaData),
       );
 
-      // Cerrar el indicador de carga
-      Navigator.pop(context);
-
       if (response.statusCode == 201 || response.statusCode == 200) {
         Navigator.pushReplacement(
           context,
@@ -120,9 +105,6 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
         );
       }
     } catch (e) {
-      // Cerrar el indicador de carga en caso de error
-      Navigator.pop(context);
-      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error de conexión: $e'),
@@ -172,11 +154,10 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildSectionTitle('Datos del Vehículo'),
-                _buildTextField('Modelo del Vehículo', _modeloController),
-                _buildTextField('Marca del Vehículo', _marcaController),
-                _buildTextField('Año del Vehículo', _anioController,
-                    keyboardType: TextInputType.number),
-                _buildTextField('Placas del Vehículo', _placasController),
+                _buildReadOnlyField('Modelo del Vehículo', _modeloController.text),
+                _buildReadOnlyField('Marca del Vehículo', _marcaController.text),
+                _buildReadOnlyField('Año del Vehículo', _anioController.text),
+                _buildReadOnlyField('Placas del Vehículo', _placasController.text),
 
                 const SizedBox(height: 20),
                 TextFormField(
@@ -222,22 +203,85 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
     );
   }
 
-  Widget _buildTextField(String labelText, TextEditingController controller,
-      {TextInputType keyboardType = TextInputType.text, int maxLines = 1}) {
+  Widget _buildReadOnlyField(String labelText, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: labelText,
-          border: OutlineInputBorder(),
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+          border: Border.all(
+            color: Colors.deepPurple.withOpacity(0.2),
+            width: 1.5,
+          ),
         ),
-        keyboardType: keyboardType,
-        maxLines: maxLines,
-        validator: (value) =>
-            value!.isEmpty ? 'Este campo es obligatorio' : null,
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Colors.deepPurple.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Icon(
+                _getIconForField(labelText),
+                color: Colors.deepPurple,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    labelText,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  IconData _getIconForField(String labelText) {
+    switch (labelText) {
+      case 'Modelo del Vehículo':
+        return Icons.directions_car;
+      case 'Marca del Vehículo':
+        return Icons.branding_watermark;
+      case 'Año del Vehículo':
+        return Icons.calendar_today;
+      case 'Placas del Vehículo':
+        return Icons.credit_card;
+      default:
+        return Icons.info;
+    }
   }
 
   Widget _buildSectionTitle(String title) {
