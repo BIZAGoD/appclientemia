@@ -4,9 +4,13 @@ import 'package:appcliente/Pantallas/Configuraciones/PantallaCerrarSesion.dart';
 import 'package:appcliente/Pantallas/Configuraciones/PantallaModoOscuro.dart';
 import 'package:appcliente/Pantallas/Configuraciones/PantallaPerfil.dart';
 import 'package:appcliente/Pantallas/Servicios/PantallaAgregarTaller.dart';
+import 'package:appcliente/Pantallas/Servicios/PantallaDetalleServicio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 
 class PantallaHomeservicios extends StatefulWidget {
   const PantallaHomeservicios({super.key});
@@ -18,11 +22,14 @@ class PantallaHomeservicios extends StatefulWidget {
 class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
   String userName = '';
   String? userImagePath;
+  List<dynamic> servicios = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _cargarDatosUsuario();
+    _cargarServicios();
   }
 
   Future<void> _cargarDatosUsuario() async {
@@ -31,6 +38,25 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
       userName = '${prefs.getString('name') ?? ''} ${prefs.getString('lastName') ?? ''}';
       userImagePath = prefs.getString('userImagePath');
     });
+  }
+
+  Future<void> _cargarServicios() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://followcar-api-railway-production.up.railway.app/api/serviciosClientes')
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          servicios = jsonDecode(response.body);
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error al cargar servicios: $e');
+    }
   }
 
   @override
@@ -68,20 +94,140 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Image.asset(                                  //AQUI SE USA LA IMAGEN
-                    'assets/imageservicios.webp',
-                    height: 400,
-                    width: 350,
-                    fit: BoxFit.contain,
-                  ),
-                  const Center(
-                    child: Text(
-                      'Sin servicios',
-                      style: TextStyle(
-                        fontSize: 25,
-                        color: Color.fromARGB(255, 155, 150, 158),
-                      ),
-                    ),
+                  Expanded(
+                    child: isLoading 
+                    ? const Center(child: CircularProgressIndicator())
+                    : servicios.isEmpty 
+                      ? Column(
+                          children: [
+                            Image.asset(
+                              'assets/imageservicios.webp',
+                              height: 400,
+                              width: 350,
+                              fit: BoxFit.contain,
+                            ),
+                            const Center(
+                              child: Text(
+                                'Sin servicios',
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  color: Color.fromARGB(255, 155, 150, 158),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: servicios.length,
+                          itemBuilder: (context, index) {
+                            final servicio = servicios[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PantallaDetalleServicio(servicio: servicio),
+                                  ),
+                                );
+                              },
+                              child: Card(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        const Color.fromARGB(255, 46, 5, 82).withOpacity(0.1),
+                                        const Color.fromARGB(255, 237, 83, 65).withOpacity(0.1),
+                                      ],
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.build_circle,
+                                              color: Color.fromARGB(255, 46, 5, 82),
+                                              size: 24,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                servicio['nombre'] ?? '',
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color.fromARGB(255, 46, 5, 82),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 4,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: servicio['estado'] == 1
+                                                    ? Colors.green.withOpacity(0.2)
+                                                    : Colors.red.withOpacity(0.2),
+                                                borderRadius: BorderRadius.circular(10),
+                                              ),
+                                              child: Text(
+                                                servicio['estado'] == 1 ? 'Activo' : 'Inactivo',
+                                                style: TextStyle(
+                                                  color: servicio['estado'] == 1
+                                                      ? Colors.green[700]
+                                                      : Colors.red[700],
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const Divider(height: 16),
+                                        Text(
+                                          'Descripción: ${servicio['descripcion'] ?? ''}',
+                                          style: const TextStyle(fontSize: 14),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Pieza: ${servicio['pieza'] ?? ''}',
+                                              style: const TextStyle(fontSize: 14),
+                                            ),
+                                            Text(
+                                              '${servicio['duracion']} min',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color.fromARGB(255, 237, 83, 65),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                   ),
                 ],
               ),
