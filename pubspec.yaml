@@ -33,7 +33,9 @@ flutter:
      - assets/perfil.webp
      - assets/logohome.webp
      - assets/pantalla-de-carga1.webp
+     - assets/ImageDelTaller.webp
      - assets/ZKZg.gif
+
      
       # Ruta de la imagen que quieres usar
 
