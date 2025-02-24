@@ -64,6 +64,18 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+
+    // Mostrar indicador de carga
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
     await _guardarDatos();
 
     final Map<String, dynamic> citaData = {
@@ -87,6 +99,9 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
         body: json.encode(citaData),
       );
 
+      // Cerrar el indicador de carga
+      Navigator.pop(context);
+
       if (response.statusCode == 201 || response.statusCode == 200) {
         Navigator.pushReplacement(
           context,
@@ -105,6 +120,9 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
         );
       }
     } catch (e) {
+      // Cerrar el indicador de carga en caso de error
+      Navigator.pop(context);
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error de conexión: $e'),
