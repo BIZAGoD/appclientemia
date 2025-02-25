@@ -18,6 +18,8 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
   final TextEditingController _marcaController = TextEditingController();
   final TextEditingController _anioController = TextEditingController();
   final TextEditingController _placasController = TextEditingController();
+  bool _hasVehicle = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -26,13 +28,30 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
   }
 
   Future<void> _cargarDatosGuardados() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _modeloController.text = prefs.getString('modelo') ?? '';
-      _marcaController.text = prefs.getString('marca') ?? '';
-      _anioController.text = prefs.getString('anio') ?? '';
-      _placasController.text = prefs.getString('placas') ?? '';
-    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _modeloController.text = prefs.getString('modelo') ?? '';
+        _marcaController.text = prefs.getString('marca') ?? '';
+        _anioController.text = prefs.getString('anio') ?? '';
+        _placasController.text = prefs.getString('placas') ?? '';
+        _hasVehicle = _modeloController.text.isNotEmpty;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasVehicle = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al cargar datos: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _guardarDatos() async {
@@ -114,6 +133,179 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
     }
   }
 
+  void _editarVehiculo() async {
+    try {
+      if (_placasController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error: No hay placas identificadas'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Primero necesitamos obtener el ID de la cita basado en las placas
+      final urlGet = Uri.parse(
+          "https://followcar-api-railway-production.up.railway.app/api/citasClientes");
+      
+      final responseGet = await http.get(
+        urlGet,
+        headers: {
+          "Accept": "application/json",
+        },
+      );
+
+      if (responseGet.statusCode == 200) {
+        final List<dynamic> citas = json.decode(responseGet.body);
+        final cita = citas.firstWhere(
+          (cita) => cita['Placas'] == _placasController.text,
+          orElse: () => null,
+        );
+
+        if (cita == null) {
+          throw Exception('No se encontró la cita con esas placas');
+        }
+
+        final citaId = cita['id'].toString();
+
+        final Map<String, dynamic> citaData = {
+          "Modelo": _modeloController.text,
+          "Marca": _marcaController.text,
+          "Anio": _anioController.text,
+          "Placas": _placasController.text,
+          "FechaCita": _fechaController.text,
+        };
+
+        final urlUpdate = Uri.parse(
+            "https://followcar-api-railway-production.up.railway.app/api/citasClientes/$citaId");
+
+        final response = await http.put(
+          urlUpdate,
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+          },
+          body: json.encode(citaData),
+        );
+
+        if (response.statusCode == 204) {
+          await _guardarDatos();
+          setState(() {
+            _hasVehicle = true;
+          });
+          
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Vehículo actualizado exitosamente'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } else {
+          throw Exception('Error al actualizar la cita');
+        }
+      }
+    } catch (e) {
+      print('Error en _editarVehiculo: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _eliminarVehiculo() async {
+    try {
+      if (_placasController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error: No hay placas identificadas'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Primero necesitamos obtener el ID de la cita basado en las placas
+      final urlGet = Uri.parse(
+          "https://followcar-api-railway-production.up.railway.app/api/citasClientes");
+      
+      final responseGet = await http.get(
+        urlGet,
+        headers: {
+          "Accept": "application/json",
+        },
+      );
+
+      if (responseGet.statusCode == 200) {
+        final List<dynamic> citas = json.decode(responseGet.body);
+        final cita = citas.firstWhere(
+          (cita) => cita['Placas'] == _placasController.text,
+          orElse: () => null,
+        );
+
+        if (cita == null) {
+          throw Exception('No se encontró la cita con esas placas');
+        }
+
+        final citaId = cita['id'].toString();
+
+        final urlDelete = Uri.parse(
+            "https://followcar-api-railway-production.up.railway.app/api/citasClientes/$citaId");
+
+        final response = await http.delete(
+          urlDelete,
+          headers: {
+            "Accept": "application/json",
+          },
+        );
+
+        if (response.statusCode == 204) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove('modelo');
+          await prefs.remove('marca');
+          await prefs.remove('anio');
+          await prefs.remove('placas');
+          
+          setState(() {
+            _modeloController.clear();
+            _marcaController.clear();
+            _anioController.clear();
+            _placasController.clear();
+            _hasVehicle = false;
+          });
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Vehículo eliminado exitosamente'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } else {
+          throw Exception('Error al eliminar la cita');
+        }
+      }
+    } catch (e) {
+      print('Error en _eliminarVehiculo: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   void dispose() {
     _fechaController.dispose();
@@ -145,7 +337,9 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
         ),
       ),
       
-      body: Padding(
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator())
+        : Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -154,10 +348,81 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildSectionTitle('Datos del Vehículo'),
-                _buildReadOnlyField('Modelo del Vehículo', _modeloController.text),
-                _buildReadOnlyField('Marca del Vehículo', _marcaController.text),
-                _buildReadOnlyField('Año del Vehículo', _anioController.text),
-                _buildReadOnlyField('Placas del Vehículo', _placasController.text),
+                if (_hasVehicle) ...[
+                  _buildReadOnlyField('Modelo del Vehículo', _modeloController.text),
+                  _buildReadOnlyField('Marca del Vehículo', _marcaController.text),
+                  _buildReadOnlyField('Año del Vehículo', _anioController.text),
+                  _buildReadOnlyField('Placas del Vehículo', _placasController.text),
+                  
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _editarVehiculo,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepPurple,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                          ),
+                          child: const Text('Editar Vehículo', 
+                            style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _eliminarVehiculo,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                          ),
+                          child: const Text('Eliminar Vehículo', 
+                            style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  TextFormField(
+                    controller: _modeloController,
+                    decoration: const InputDecoration(
+                      labelText: 'Modelo del Vehículo',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) => 
+                      value!.isEmpty ? 'Ingrese el modelo' : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _marcaController,
+                    decoration: const InputDecoration(
+                      labelText: 'Marca del Vehículo',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) => 
+                      value!.isEmpty ? 'Ingrese la marca' : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _anioController,
+                    decoration: const InputDecoration(
+                      labelText: 'Año del Vehículo',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) => 
+                      value!.isEmpty ? 'Ingrese el año' : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _placasController,
+                    decoration: const InputDecoration(
+                      labelText: 'Placas del Vehículo',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) => 
+                      value!.isEmpty ? 'Ingrese las placas' : null,
+                  ),
+                ],
 
                 const SizedBox(height: 20),
                 TextFormField(
