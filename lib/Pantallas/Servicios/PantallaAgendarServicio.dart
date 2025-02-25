@@ -383,136 +383,118 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
       
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator())
-        : Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle('Datos del Vehículo'),
-                if (_hasVehicle) ...[
-                  _buildReadOnlyField('Modelo del Vehículo', _modeloController.text),
-                  _buildReadOnlyField('Marca del Vehículo', _marcaController.text),
-                  _buildReadOnlyField('Año del Vehículo', _anioController.text),
-                  _buildReadOnlyField('Placas del Vehículo', _placasController.text),
-                  
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: _editarVehiculo,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurple,
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                          ),
-                          child: const Text('Editar Vehículo', 
-                            style: TextStyle(color: Colors.white)),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: _eliminarVehiculo,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                          ),
-                          child: const Text('Eliminar Vehículo', 
-                            style: TextStyle(color: Colors.white)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ] else ...[
-                  TextFormField(
-                    controller: _modeloController,
-                    decoration: const InputDecoration(
-                      labelText: 'Modelo del Vehículo',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) => 
-                      value!.isEmpty ? 'Ingrese el modelo' : null,
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _marcaController,
-                    decoration: const InputDecoration(
-                      labelText: 'Marca del Vehículo',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) => 
-                      value!.isEmpty ? 'Ingrese la marca' : null,
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _anioController,
-                    decoration: const InputDecoration(
-                      labelText: 'Año del Vehículo',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) => 
-                      value!.isEmpty ? 'Ingrese el año' : null,
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _placasController,
-                    decoration: const InputDecoration(
-                      labelText: 'Placas del Vehículo',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) => 
-                      value!.isEmpty ? 'Ingrese las placas' : null,
-                  ),
-                ],
-
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _fechaController,
-                  decoration: InputDecoration(
-                    labelText: 'Fecha de la Cita',
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.calendar_today),
-                      onPressed: _seleccionarFecha,
-                    ),
-                    border: const OutlineInputBorder(),
-                  ),
-                  readOnly: true,
-                  validator: (value) =>
-                      value!.isEmpty ? 'Seleccione una fecha' : null,
-                ),
-
-                const SizedBox(height: 25),
-                Center(
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _agendarCita,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color.fromARGB(255, 237, 83, 65),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        textStyle: const TextStyle(fontSize: 18),
-                      ),
-                      child: const Text('Agendar',
-                          style: TextStyle(fontSize: 18, color: Colors.white)),
-                    ),
-                  ),
-                ),
+        : Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.white,
+                const Color.fromARGB(255, 246, 241, 251).withOpacity(0.5),
               ],
             ),
           ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle('Datos de su Vehículo'),
+                    const SizedBox(height: 20),
+                    if (_hasVehicle) ...[
+                      _buildReadOnlyField('Modelo del Vehículo', _modeloController.text, Icons.directions_car),
+                      _buildReadOnlyField('Marca del Vehículo', _marcaController.text, Icons.branding_watermark),
+                      _buildReadOnlyField('Año del Vehículo', _anioController.text, Icons.calendar_today),
+                      _buildReadOnlyField('Placas del Vehículo', _placasController.text, Icons.credit_card),
+                      
+                      const SizedBox(height: 25),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildActionButton(
+                              onPressed: _editarVehiculo,
+                              icon: Icons.edit_outlined,
+                              label: 'Editar Vehículo',
+                              color: const Color.fromARGB(255, 46, 5, 82),
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: _buildActionButton(
+                              onPressed: _eliminarVehiculo,
+                              icon: Icons.delete_outline,
+                              label: 'Eliminar Vehículo',
+                              color: Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      _buildFormField(
+                        controller: _modeloController,
+                        label: 'Modelo del Vehículo',
+                        icon: Icons.directions_car,
+                        hint: 'Ingrese el modelo',
+                      ),
+                      const SizedBox(height: 15),
+                      _buildFormField(
+                        controller: _marcaController,
+                        label: 'Marca del Vehículo',
+                        icon: Icons.branding_watermark,
+                        hint: 'Ingrese la marca',
+                      ),
+                      const SizedBox(height: 15),
+                      _buildFormField(
+                        controller: _anioController,
+                        label: 'Año del Vehículo',
+                        icon: Icons.calendar_today,
+                        hint: 'Ingrese el año',
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 15),
+                      _buildFormField(
+                        controller: _placasController,
+                        label: 'Placas del Vehículo',
+                        icon: Icons.credit_card,
+                        hint: 'Ingrese las placas',
+                        textCapitalization: TextCapitalization.characters,
+                      ),
+                    ],
+                    const SizedBox(height: 25),
+                    _buildFormField(
+                      controller: _fechaController,
+                      label: 'Fecha de la Cita',
+                      icon: Icons.event,
+                      hint: 'Seleccione una fecha',
+                      readOnly: true,
+                      onTap: _seleccionarFecha,
+                      suffixIcon: IconButton(
+                        icon: const Icon(
+                          Icons.calendar_month,
+                          color: Color.fromARGB(255, 46, 5, 82),
+                        ),
+                        onPressed: _seleccionarFecha,
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    _buildMainActionButton(
+                      onPressed: _agendarCita,
+                      label: 'Agendar Cita',
+                      icon: Icons.check_circle_outline,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
-      ),
     );
   }
 
-  Widget _buildReadOnlyField(String labelText, String value) {
+  Widget _buildReadOnlyField(String labelText, String value, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
@@ -529,7 +511,7 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
             ),
           ],
           border: Border.all(
-            color: Colors.deepPurple.withOpacity(0.2),
+            color: const Color.fromARGB(255, 46, 5, 82).withOpacity(0.2),
             width: 1.5,
           ),
         ),
@@ -538,12 +520,12 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
             Container(
               padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
-                color: Colors.deepPurple.withOpacity(0.1),
+                color: const Color.fromARGB(255, 46, 5, 82).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Icon(
-                _getIconForField(labelText),
-                color: Colors.deepPurple,
+                icon,
+                color: const Color.fromARGB(255, 46, 5, 82),
                 size: 24,
               ),
             ),
@@ -578,19 +560,166 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
     );
   }
 
-  IconData _getIconForField(String labelText) {
-    switch (labelText) {
-      case 'Modelo del Vehículo':
-        return Icons.directions_car;
-      case 'Marca del Vehículo':
-        return Icons.branding_watermark;
-      case 'Año del Vehículo':
-        return Icons.calendar_today;
-      case 'Placas del Vehículo':
-        return Icons.credit_card;
-      default:
-        return Icons.info;
-    }
+  Widget _buildFormField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required String hint,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    Widget? suffixIcon,
+    TextInputType? keyboardType,
+    TextCapitalization textCapitalization = TextCapitalization.none,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        readOnly: readOnly,
+        onTap: onTap,
+        keyboardType: keyboardType,
+        textCapitalization: textCapitalization,
+        style: const TextStyle(fontSize: 16),
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          prefixIcon: Container(
+            margin: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 46, 5, 82).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              color: const Color.fromARGB(255, 46, 5, 82),
+              size: 20,
+            ),
+          ),
+          suffixIcon: suffixIcon,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(
+              color: const Color.fromARGB(255, 46, 5, 82).withOpacity(0.2),
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(
+              color: const Color.fromARGB(255, 46, 5, 82).withOpacity(0.2),
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: const BorderSide(
+              color: Color.fromARGB(255, 46, 5, 82),
+              width: 2,
+            ),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        ),
+        validator: (value) => value!.isEmpty ? 'Este campo es requerido' : null,
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required VoidCallback onPressed,
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, color: Colors.white),
+        label: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          elevation: 0,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMainActionButton({
+    required VoidCallback onPressed,
+    required String label,
+    required IconData icon,
+  }) {
+    return Container(
+      width: double.infinity,
+      height: 55,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        gradient: const LinearGradient(
+          colors: [
+            Color.fromARGB(255, 46, 5, 82),
+            Color.fromARGB(255, 237, 83, 65),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color.fromARGB(255, 237, 83, 65).withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, color: Colors.white),
+        label: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildSectionTitle(String title) {
@@ -599,7 +728,10 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
       child: Text(
         title,
         style: const TextStyle(
-            fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Color.fromARGB(255, 46, 5, 82),
+        ),
       ),
     );
   }

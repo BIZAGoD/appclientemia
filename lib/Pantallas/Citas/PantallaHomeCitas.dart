@@ -53,17 +53,20 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
 
   Future<void> cargarCitas() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final userName = prefs.getString('name');
+      final userLastName = prefs.getString('lastName');
+
       final response = await http.get(Uri.parse(
           'https://followcar-api-railway-production.up.railway.app/api/citasClientes'));
           
       if (response.statusCode == 200) {
         final List<dynamic> citasJson = json.decode(response.body);
-        print('Buscando citas para el usuario con email: $userEmail'); // Debugging
+        print('Buscando citas para el usuario: $userName $userLastName'); // Debugging
         
         setState(() {
-          // Filtrar las citas que corresponden al email del usuario actual
+          // Filtrar las citas que corresponden al usuario actual basado en las placas
           citas = citasJson
-              .where((cita) => cita['Email'].toString().toLowerCase() == userEmail?.toLowerCase())
               .map((json) => Cita.fromJson(json))
               .toList();
           isLoading = false;
@@ -147,25 +150,32 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
                           itemBuilder: (context, index) {
                             final cita = citas[index];
                             return Card(
-                              elevation: 4,
-                              margin: const EdgeInsets.only(bottom: 16),
+                              elevation: 8,
+                              margin: const EdgeInsets.only(bottom: 20),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(20),
                               ),
                               child: InkWell(
                                 onTap: () => _mostrarDetallesCita(context, cita),
                                 child: Container(
-                                  padding: const EdgeInsets.all(16),
+                                  padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
+                                    borderRadius: BorderRadius.circular(20),
                                     gradient: const LinearGradient(
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
                                         Colors.white,
-                                        Color.fromARGB(255, 245, 245, 245),
+                                        Color.fromARGB(255, 246, 241, 251),
                                       ],
                                     ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.purple.withOpacity(0.1),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 5),
+                                      ),
+                                    ],
                                   ),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,10 +183,15 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
                                       Row(
                                         children: [
                                           Container(
-                                            padding: const EdgeInsets.all(8),
-                                            decoration: const BoxDecoration(
-                                              color: Color.fromARGB(255, 237, 83, 65),
-                                              shape: BoxShape.circle,
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              gradient: const LinearGradient(
+                                                colors: [
+                                                  Color.fromARGB(255, 46, 5, 82),
+                                                  Color.fromARGB(255, 237, 83, 65),
+                                                ],
+                                              ),
+                                              borderRadius: BorderRadius.circular(15),
                                             ),
                                             child: const Icon(
                                               Icons.calendar_today,
@@ -184,7 +199,7 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
                                               size: 24,
                                             ),
                                           ),
-                                          const SizedBox(width: 12),
+                                          const SizedBox(width: 15),
                                           Expanded(
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,17 +207,18 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
                                                 Text(
                                                   cita.fechaCita,
                                                   style: const TextStyle(
-                                                    fontSize: 18,
+                                                    fontSize: 20,
                                                     fontWeight: FontWeight.bold,
                                                     color: Color.fromARGB(255, 46, 5, 82),
                                                   ),
                                                 ),
-                                                const SizedBox(height: 4),
+                                                const SizedBox(height: 6),
                                                 Text(
                                                   '${cita.marca} ${cita.modelo}',
                                                   style: const TextStyle(
                                                     fontSize: 16,
                                                     color: Colors.grey,
+                                                    fontWeight: FontWeight.w500,
                                                   ),
                                                 ),
                                               ],
@@ -210,36 +226,87 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
                                           ),
                                         ],
                                       ),
-                                      const Divider(height: 20),
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 15),
+                                        child: Divider(
+                                          color: Color.fromARGB(255, 237, 83, 65),
+                                          thickness: 1,
+                                        ),
+                                      ),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: const Color.fromARGB(255, 46, 5, 82).withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.directions_car,
+                                                  color: Color.fromARGB(255, 46, 5, 82),
+                                                  size: 20,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  cita.placas,
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    color: Color.fromARGB(255, 46, 5, 82),
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                           Row(
                                             children: [
-                                              const Icon(
-                                                Icons.directions_car,
-                                                color: Color.fromARGB(255, 46, 5, 82),
-                                                size: 20,
+                                              Container(
+                                                padding: const EdgeInsets.all(8),
+                                                decoration: BoxDecoration(
+                                                  color: const Color.fromARGB(255, 46, 5, 82).withOpacity(0.1),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.schedule,
+                                                  color: Color.fromARGB(255, 46, 5, 82),
+                                                  size: 20,
+                                                ),
                                               ),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                cita.placas,
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.black87,
+                                              const SizedBox(width: 12),
+                                              InkWell(
+                                                onTap: () => _mostrarDetallesCita(context, cita),
+                                                child: Container(
+                                                  padding: const EdgeInsets.all(8),
+                                                  decoration: BoxDecoration(
+                                                    gradient: const LinearGradient(
+                                                      colors: [
+                                                        Color.fromARGB(255, 46, 5, 82),
+                                                        Color.fromARGB(255, 237, 83, 65),
+                                                      ],
+                                                    ),
+                                                    shape: BoxShape.circle,
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: const Color.fromARGB(255, 46, 5, 82).withOpacity(0.3),
+                                                        blurRadius: 8,
+                                                        offset: const Offset(0, 3),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.arrow_forward_ios,
+                                                    color: Colors.white,
+                                                    size: 20,
+                                                  ),
                                                 ),
                                               ),
                                             ],
-                                          ),
-                                          TextButton(
-                                            onPressed: () => _mostrarDetallesCita(context, cita),
-                                            child: const Text(
-                                              'Detalles',
-                                              style: TextStyle(
-                                                color: Color.fromARGB(255, 237, 83, 65),
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
                                           ),
                                         ],
                                       ),
@@ -447,38 +514,46 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(20),
         ),
-        title: Row(
-          children: [
-            const Icon(
-              Icons.event,
-              color: Color.fromARGB(255, 237, 83, 65),
+        contentPadding: const EdgeInsets.all(20),
+        title: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Color.fromARGB(255, 46, 5, 82),
+                Color.fromARGB(255, 237, 83, 65),
+              ],
             ),
-            const SizedBox(width: 8),
-            const Text('Detalles de la Cita'),
-          ],
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: const Row(
+            children: [
+              Icon(
+                Icons.event,
+                color: Colors.white,
+              ),
+              SizedBox(width: 8),
+              Text(
+                'Detalles',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
         ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _detalleItem(Icons.person, 'Nombre', '${cita.nombre} ${cita.apellido}'),
-              const SizedBox(height: 12),
-              _detalleItem(Icons.phone, 'Teléfono', cita.telefono),
-              const SizedBox(height: 12),
-              _detalleItem(Icons.email, 'Email', cita.email),
-              const SizedBox(height: 12),
               _detalleItem(Icons.directions_car, 'Vehículo', '${cita.marca} ${cita.modelo}'),
-              const SizedBox(height: 12),
+              const SizedBox(height: 15),
               _detalleItem(Icons.calendar_today, 'Año', cita.anio),
-              const SizedBox(height: 12),
+              const SizedBox(height: 15),
               _detalleItem(Icons.badge, 'Placas', cita.placas),
-              const SizedBox(height: 12),
+              const SizedBox(height: 15),
               _detalleItem(Icons.event_available, 'Fecha de Cita', cita.fechaCita),
-              const SizedBox(height: 12),
-              _detalleItem(Icons.store, 'Taller', cita.taller),
             ],
           ),
         ),
@@ -489,7 +564,21 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
               'Cerrar',
               style: TextStyle(
                 color: Color.fromARGB(255, 46, 5, 82),
+                fontWeight: FontWeight.bold,
               ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => _confirmarCancelacionCita(context, cita),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'Cancelar Cita',
+              style: TextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -497,75 +586,326 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
     );
   }
 
-  Widget _detalleItem(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: const Color.fromARGB(255, 46, 5, 82)),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: Colors.grey,
+  void _confirmarCancelacionCita(BuildContext context, Cita cita) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text('Confirmar Cancelación'),
+          content: const Text('¿Estás seguro de que deseas cancelar esta cita?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'No',
+                style: TextStyle(color: Color.fromARGB(255, 46, 5, 82)),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context); // Cierra el diálogo de confirmación
+                Navigator.pop(context); // Cierra el diálogo de detalles
+                await _cancelarCita(cita);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              Text(
-                value,
-                style: const TextStyle(fontSize: 16),
+              child: const Text(
+                'Sí, Cancelar',
+                style: TextStyle(color: Colors.white),
               ),
-            ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _cancelarCita(Cita cita) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('https://followcar-api-railway-production.up.railway.app/api/citasClientes/${cita.id}'),
+        headers: {"Accept": "application/json"},
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        if (mounted) {
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10.0,
+                        offset: const Offset(0.0, 10.0),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color.fromARGB(255, 46, 5, 82),
+                              Color.fromARGB(255, 237, 83, 65),
+                            ],
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check_circle_outline,
+                          color: Colors.white,
+                          size: 50,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        '¡Cita Cancelada!',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 46, 5, 82),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'La cita ha sido cancelada correctamente',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                          backgroundColor: const Color.fromARGB(255, 46, 5, 82),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                        ),
+                        child: const Text(
+                          'Aceptar',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+          // Recargar las citas después de cancelar
+          cargarCitas();
+        }
+      } else {
+        if (mounted) {
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10.0,
+                        offset: const Offset(0.0, 10.0),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 237, 83, 65),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.error_outline,
+                          color: Colors.white,
+                          size: 50,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Error',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 237, 83, 65),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'No se pudo cancelar la cita',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                          backgroundColor: const Color.fromARGB(255, 237, 83, 65),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                        ),
+                        child: const Text(
+                          'Aceptar',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
           ),
+        );
+      }
+    }
+  }
+
+  Widget _detalleItem(IconData icon, String label, String value) {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: const Color.fromARGB(255, 46, 5, 82).withOpacity(0.2),
         ),
-      ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 46, 5, 82).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              color: const Color.fromARGB(255, 46, 5, 82),
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 46, 5, 82),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class Cita {
   final int id;
-  final String nombre;
-  final String apellido;
-  final String telefono;
-  final String email;
   final String modelo;
   final String marca;
   final String anio;
   final String placas;
   final String fechaCita;
-  final String taller;
 
   Cita({
     required this.id,
-    required this.nombre,
-    required this.apellido,
-    required this.telefono,
-    required this.email,
     required this.modelo,
     required this.marca,
     required this.anio,
     required this.placas,
     required this.fechaCita,
-    required this.taller,
   });
 
   factory Cita.fromJson(Map<String, dynamic> json) {
     return Cita(
-      id: json['id'],
-      nombre: json['Nombre'],
-      apellido: json['Apellido'],
-      telefono: json['Telefono'],
-      email: json['Email'],
-      modelo: json['Modelo'],
-      marca: json['Marca'],
-      anio: json['Anio'],
-      placas: json['Placas'],
-      fechaCita: json['FechaCita'],
-      taller: json['Taller'] ?? 'No especificado',
+      id: json['id'] ?? 0,
+      modelo: json['Modelo'] ?? '',
+      marca: json['Marca'] ?? '',
+      anio: json['Anio'] ?? '',
+      placas: json['Placas'] ?? '',
+      fechaCita: json['FechaCita'] ?? '',
     );
   }
 }
@@ -586,11 +926,6 @@ class AgregarServicioScreen extends StatelessWidget {
           style: TextStyle(fontSize: 18),
         ),
       ),
-
-
-
-
-
     );
   }
 }
