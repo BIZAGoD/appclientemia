@@ -29,16 +29,60 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
 
   Future<void> _cargarDatosGuardados() async {
     try {
+      // First try to get data from API
+      final urlGet = Uri.parse(
+          "https://followcar-api-railway-production.up.railway.app/api/citasClientes");
+      
+      final responseGet = await http.get(
+        urlGet,
+        headers: {
+          "Accept": "application/json",
+        },
+      );
+
+      if (responseGet.statusCode == 200) {
+        final List<dynamic> citas = json.decode(responseGet.body);
+        // Get the most recent vehicle data
+        if (citas.isNotEmpty) {
+          final citaMasReciente = citas.reduce((a, b) {
+            final fechaA = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(1900);
+            final fechaB = DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(1900);
+            return fechaA.isAfter(fechaB) ? a : b;
+          });
+          
+          if (citaMasReciente != null) {
+            setState(() {
+              _modeloController.text = citaMasReciente['Modelo']?.toString() ?? '';
+              _marcaController.text = citaMasReciente['Marca']?.toString() ?? '';
+              _anioController.text = citaMasReciente['Anio']?.toString() ?? '';
+              _placasController.text = citaMasReciente['Placas']?.toString() ?? '';
+              _hasVehicle = _placasController.text.isNotEmpty;
+              _isLoading = false;
+            });
+
+            // Update local storage with API data
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('modelo', _modeloController.text);
+            await prefs.setString('marca', _marcaController.text);
+            await prefs.setString('anio', _anioController.text);
+            await prefs.setString('placas', _placasController.text);
+            return;
+          }
+        }
+      }
+
+      // Fallback to local storage if API fails or returns no data
       final prefs = await SharedPreferences.getInstance();
       setState(() {
         _modeloController.text = prefs.getString('modelo') ?? '';
         _marcaController.text = prefs.getString('marca') ?? '';
         _anioController.text = prefs.getString('anio') ?? '';
         _placasController.text = prefs.getString('placas') ?? '';
-        _hasVehicle = _modeloController.text.isNotEmpty;
+        _hasVehicle = _placasController.text.isNotEmpty;
         _isLoading = false;
       });
     } catch (e) {
+      print('Error en _cargarDatosGuardados: $e');
       setState(() {
         _isLoading = false;
         _hasVehicle = false;
