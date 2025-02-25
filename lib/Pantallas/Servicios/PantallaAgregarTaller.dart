@@ -140,46 +140,122 @@ class _PantallaAggTallerState extends State<Pantallaagregartaller> {
                       itemCount: talleresFiltrados.length,
                       itemBuilder: (context, index) {
                         final taller = talleresFiltrados[index];
-                        return Card(
-                          elevation: 3,
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.all(16),
-                            leading: taller.logo.isNotEmpty
-                                ? Image.network(
-                                    'https://followcar-api-railway-production.up.railway.app/images',
-                                    width: 50,
-                                    height: 50,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Icon(Icons.home_repair_service_rounded, size: 50);
-                                    },
-                                  )
-                                : const Icon(Icons.home_repair_service_rounded, size: 50),
-                                iconColor: const Color.fromARGB(255, 46, 5, 82),
-                            title: Text(
-                              taller.nombre,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                        return Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
                               ),
-                              
-                            ),
-                            subtitle: Text(
-                              '${taller.direccion} • ${taller.telefono}',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () => _navegarADetallesTaller(taller, context),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 60,
+                                        height: 60,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF2E0552).withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: taller.logo.isNotEmpty
+                                            ? ClipRRect(
+                                                borderRadius: BorderRadius.circular(12),
+                                                child: Image.network(
+                                                  'https://followcar-api-railway-production.up.railway.app/images',
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (context, error, stackTrace) {
+                                                    return const Icon(
+                                                      Icons.home_repair_service_rounded,
+                                                      size: 30,
+                                                      color: Color(0xFF2E0552),
+                                                    );
+                                                  },
+                                                ),
+                                              )
+                                            : const Icon(
+                                                Icons.home_repair_service_rounded,
+                                                size: 30,
+                                                color: Color(0xFF2E0552),
+                                              ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              taller.nombre,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: Color(0xFF2E0552),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.location_on_outlined,
+                                                  size: 16,
+                                                  color: Color(0xFFED5341),
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Expanded(
+                                                  child: Text(
+                                                    taller.direccion,
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.grey[600],
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.phone_outlined,
+                                                  size: 16,
+                                                  color: Color(0xFFED5341),
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  taller.telefono,
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 20,
+                                        color: Color(0xFF2E0552),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.arrow_forward_ios,
-                                  color: Color.fromARGB(255, 46, 5, 82)),
-                              onPressed: () {
-                                _navegarADetallesTaller(taller, context);
-                              },
                             ),
                           ),
                         );

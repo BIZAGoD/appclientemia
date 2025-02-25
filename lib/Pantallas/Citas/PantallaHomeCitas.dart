@@ -473,7 +473,6 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
         ),
       ),
 
-
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(
@@ -536,7 +535,7 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
               ),
               SizedBox(width: 8),
               Text(
-                'Detalles',
+                'Cita',
                 style: TextStyle(color: Colors.white),
               ),
             ],
