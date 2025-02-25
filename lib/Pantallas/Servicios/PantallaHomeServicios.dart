@@ -132,8 +132,8 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
                                 );
                               },
                               child: Card(
-                                margin: const EdgeInsets.symmetric(vertical: 8),
-                                elevation: 4,
+                                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                                elevation: 3,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15),
                                 ),
@@ -144,84 +144,126 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        const Color.fromARGB(255, 46, 5, 82).withOpacity(0.1),
-                                        const Color.fromARGB(255, 237, 83, 65).withOpacity(0.1),
+                                        const Color.fromARGB(255, 46, 5, 82).withOpacity(0.03),
+                                        const Color.fromARGB(255, 237, 83, 65).withOpacity(0.03),
                                       ],
                                     ),
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [
+                                              const Color.fromARGB(255, 46, 5, 82),
+                                              const Color.fromARGB(255, 237, 83, 65),
+                                            ],
+                                          ),
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(15),
+                                            topRight: Radius.circular(15),
+                                          ),
+                                        ),
+                                        child: Row(
                                           children: [
-                                            const Icon(
-                                              Icons.build_circle,
-                                              color: Color.fromARGB(255, 46, 5, 82),
-                                              size: 24,
+                                            Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withOpacity(0.2),
+                                                borderRadius: BorderRadius.circular(10),
+                                              ),
+                                              child: const Icon(
+                                                Icons.build_circle_outlined,
+                                                color: Colors.white,
+                                                size: 24,
+                                              ),
                                             ),
-                                            const SizedBox(width: 8),
+                                            const SizedBox(width: 12),
                                             Expanded(
-                                              child: Text(
-                                                servicio['nombre'] ?? '',
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Color.fromARGB(255, 46, 5, 82),
-                                                ),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    servicio['taller'] ?? '',
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.white70,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    servicio['nombre'] ?? '',
+                                                    style: const TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                             Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
+                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                               decoration: BoxDecoration(
-                                                color: servicio['estado'] == 1
-                                                    ? Colors.green.withOpacity(0.2)
-                                                    : Colors.red.withOpacity(0.2),
-                                                borderRadius: BorderRadius.circular(10),
+                                                color: servicio['estado'] == 'pendiente' 
+                                                    ? Colors.orange 
+                                                    : Colors.green,
+                                                borderRadius: BorderRadius.circular(20),
                                               ),
                                               child: Text(
-                                                servicio['estado'] == 1 ? 'Activo' : 'Inactivo',
-                                                style: TextStyle(
-                                                  color: servicio['estado'] == 1
-                                                      ? Colors.green[700]
-                                                      : Colors.red[700],
+                                                servicio['estado']?.toUpperCase() ?? '',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
                                             ),
                                           ],
                                         ),
-                                        const Divider(height: 16),
-                                        Text(
-                                          'Descripción: ${servicio['descripcion'] ?? ''}',
-                                          style: const TextStyle(fontSize: 14),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Pieza: ${servicio['pieza'] ?? ''}',
-                                              style: const TextStyle(fontSize: 14),
-                                            ),
-                                            Text(
-                                              '${servicio['duracion']} min',
-                                              style: const TextStyle(
+                                              servicio['descripcion'] ?? '',
+                                              style: TextStyle(
                                                 fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                                color: Color.fromARGB(255, 237, 83, 65),
+                                                color: Colors.grey[700],
                                               ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            const SizedBox(height: 16),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                _buildInfoChip(
+                                                  Icons.settings,
+                                                  servicio['pieza'] ?? '',
+                                                  const Color.fromARGB(255, 46, 5, 82),
+                                                ),
+                                                _buildInfoChip(
+                                                  Icons.timer,
+                                                  '${servicio['duracion']} min',
+                                                  const Color.fromARGB(255, 237, 83, 65),
+                                                ),
+                                                _buildStatusChip(
+                                                  servicio['estado_pieza'] ?? '',
+                                                  servicio['estado_pieza'] == 'Buena' 
+                                                      ? Colors.green 
+                                                      : Colors.orange,
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -436,6 +478,59 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
         },
         backgroundColor:  const Color.fromARGB(255, 46, 5, 82),
         child: const Icon(Icons.add_business_rounded, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildInfoChip(IconData icon, String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: color.withOpacity(0.2),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: color,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 12,
+              color: color,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusChip(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: color.withOpacity(0.2),
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 12,
+          color: color,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

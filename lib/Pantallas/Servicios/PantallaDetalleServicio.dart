@@ -7,19 +7,24 @@ class PantallaDetalleServicio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorPrimario = const Color.fromARGB(255, 46, 5, 82);
+    final colorSecundario = const Color.fromARGB(255, 237, 83, 65);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalles del Servicio',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal)),
+        title: const Text(
+          'Detalles del Servicio',
+          style: TextStyle(
+            color: Colors.white, 
+            fontWeight: FontWeight.bold
+          ),
+        ),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Color.fromARGB(255, 46, 5, 82),
-                Color.fromARGB(255, 237, 83, 65),
-              ],
+              colors: [colorPrimario, colorSecundario],
             ),
           ),
         ),
@@ -33,51 +38,71 @@ class PantallaDetalleServicio extends StatelessWidget {
           children: [
             Container(
               width: double.infinity,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    Color.fromARGB(255, 46, 5, 82),
-                    Color.fromARGB(255, 237, 83, 65),
-                  ],
+                  colors: [colorPrimario, colorSecundario],
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(25.0),
                 child: Column(
                   children: [
-                    const Icon(
-                      Icons.build_circle,
-                      size: 60,
-                      color: Colors.white,
+                    Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.build_circle,
+                        size: 70,
+                        color: Colors.white,
+                      ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
+                    Text(
+                      servicio['taller'] ?? 'Sin taller',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.white70,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     Text(
                       servicio['nombre'] ?? 'Sin nombre',
                       style: const TextStyle(
-                        fontSize: 28,
+                        fontSize: 30,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 15),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
+                        horizontal: 20,
+                        vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: servicio['estado'] == 1
-                            ? Colors.green
-                            : Colors.red,
-                        borderRadius: BorderRadius.circular(20),
+                        color: servicio['estado'] == 'pendiente' 
+                            ? Colors.orange 
+                            : Colors.green,
+                        borderRadius: BorderRadius.circular(25),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: Text(
-                        servicio['estado'] == 1 ? 'ACTIVO' : 'INACTIVO',
+                        servicio['estado']?.toUpperCase() ?? 'SIN ESTADO',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
                       ),
                     ),
@@ -90,7 +115,7 @@ class PantallaDetalleServicio extends StatelessWidget {
               child: Column(
                 children: [
                   _buildInfoCard(
-                    title: 'Información General',
+                    title: 'Detalles del Servicio',
                     icon: Icons.info_outline,
                     content: Column(
                       children: [
@@ -98,19 +123,26 @@ class PantallaDetalleServicio extends StatelessWidget {
                           icon: Icons.description,
                           label: 'Descripción',
                           value: servicio['descripcion'] ?? 'Sin descripción',
+                          colorPrimario: colorPrimario,
+                          colorSecundario: colorSecundario,
                         ),
                         _buildDetailRow(
                           icon: Icons.timer,
-                          label: 'Duración',
+                          label: 'Duración Estimada',
                           value: '${servicio['duracion']} minutos',
+                          colorPrimario: colorPrimario,
+                          colorSecundario: colorSecundario,
                         ),
                         _buildDetailRow(
                           icon: Icons.note,
-                          label: 'Observación',
+                          label: 'Observaciones',
                           value: servicio['observacion'] ?? 'Sin observaciones',
+                          colorPrimario: colorPrimario,
+                          colorSecundario: colorSecundario,
                         ),
                       ],
                     ),
+                    colorPrimario: colorPrimario,
                   ),
                   const SizedBox(height: 16),
                   _buildInfoCard(
@@ -120,21 +152,24 @@ class PantallaDetalleServicio extends StatelessWidget {
                       children: [
                         _buildDetailRow(
                           icon: Icons.build,
-                          label: 'Pieza',
+                          label: 'Nombre de la Pieza',
                           value: servicio['pieza'] ?? 'No especificada',
+                          colorPrimario: colorPrimario,
+                          colorSecundario: colorSecundario,
                         ),
                         _buildDetailRow(
-                          icon: Icons.inventory,
-                          label: 'Estado de la pieza',
-                          value: servicio['estado_pieza'] == 1
-                              ? 'Disponible'
-                              : 'No disponible',
-                          valueColor: servicio['estado_pieza'] == 1
-                              ? Colors.green
-                              : Colors.red,
+                          icon: Icons.health_and_safety,
+                          label: 'Estado de la Pieza',
+                          value: servicio['estado_pieza'] ?? 'No especificado',
+                          valueColor: servicio['estado_pieza'] == 'Buena' 
+                              ? Colors.green 
+                              : Colors.orange,
+                          colorPrimario: colorPrimario,
+                          colorSecundario: colorSecundario,
                         ),
                       ],
                     ),
+                    colorPrimario: colorPrimario,
                   ),
                 ],
               ),
@@ -149,39 +184,58 @@ class PantallaDetalleServicio extends StatelessWidget {
     required String title,
     required IconData icon,
     required Widget content,
+    required Color colorPrimario,
   }) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  icon,
-                  color: const Color.fromARGB(255, 46, 5, 82),
-                  size: 24,
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 46, 5, 82),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: colorPrimario.withOpacity(0.1),
+            width: 1,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: colorPrimario.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: colorPrimario,
+                      size: 24,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const Divider(thickness: 1.5),
-            const SizedBox(height: 10),
-            content,
-          ],
+                  const SizedBox(width: 15),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: colorPrimario,
+                    ),
+                  ),
+                ],
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 15),
+                child: Divider(thickness: 1.5),
+              ),
+              content,
+            ],
+          ),
         ),
       ),
     );
@@ -192,29 +246,40 @@ class PantallaDetalleServicio extends StatelessWidget {
     required String label,
     required String value,
     Color? valueColor,
+    required Color colorPrimario,
+    required Color colorSecundario,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: const Color.fromARGB(255, 237, 83, 65),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: colorSecundario.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: colorSecundario,
+            ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 15),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 5),
                 Text(
                   value,
                   style: TextStyle(
