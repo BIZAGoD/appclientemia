@@ -5,6 +5,8 @@ import 'package:appcliente/Pantallas/Configuraciones/PantallaPerfil.dart';
 import 'package:appcliente/Pantallas/Servicios/PantallaHomeServicios.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class PantallaHomeFacturas extends StatefulWidget {
   const PantallaHomeFacturas({super.key});
@@ -15,11 +17,14 @@ class PantallaHomeFacturas extends StatefulWidget {
 
 class _PantallaHomeFacturasState extends State<PantallaHomeFacturas> {
   String userName = '';
+  List<dynamic> facturas = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _cargarDatosUsuario();
+    _cargarFacturas();
   }
 
   Future<void> _cargarDatosUsuario() async {
@@ -27,6 +32,68 @@ class _PantallaHomeFacturasState extends State<PantallaHomeFacturas> {
     setState(() {
       userName = '${prefs.getString('name') ?? ''} ${prefs.getString('lastName') ?? ''}';
     });
+  }
+
+  Future<void> _cargarFacturas() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://followcar-api-railway-production.up.railway.app/api/servicios'),
+      );
+      
+      if (response.statusCode == 200) {
+        setState(() {
+          facturas = jsonDecode(response.body);
+          isLoading = false;
+        });
+      } else {
+        setState(() => isLoading = false);
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Widget _buildContent() {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    
+    if (facturas.isEmpty) {
+      return Column(
+        children: [
+          Image.asset(
+            'assets/imageservicios.webp',
+            height: 400,
+            width: 350,
+            fit: BoxFit.contain,
+          ),
+          const Center(
+            child: Text(
+              'Sin Facturas',
+              style: TextStyle(
+                fontSize: 23,
+                color: Color.fromARGB(255, 155, 150, 158),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return ListView.builder(
+      itemCount: facturas.length,
+      itemBuilder: (context, index) {
+        final factura = facturas[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: ListTile(
+            title: Text(factura['Nombre'] ?? 'Sin nombre'),
+            subtitle: Text('Precio: \$${factura['Precio']}'),
+            trailing: Text('Duración: ${factura['Duracion']} hora(s)'),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -65,22 +132,7 @@ class _PantallaHomeFacturasState extends State<PantallaHomeFacturas> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Image.asset(                //IMAGEN DE FACTURAS
-                    'assets/imageservicios.webp',
-                    height: 400,
-                    width: 350,
-                    fit: BoxFit.contain,
-                  ),
-
-                  const Center(
-                    child: Text(
-                      'Sin Facturas',
-                      style: TextStyle(
-                        fontSize: 23,
-                        color: Color.fromARGB(255, 155, 150, 158),
-                      ),
-                    ),
-                  ),
+                  Expanded(child: _buildContent()),
                 ],
               ),
             ),
