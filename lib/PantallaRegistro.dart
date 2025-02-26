@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'services/api_service.dart';
 import 'PantallaRegistroExito.dart'; 
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PantallaRegistro extends StatefulWidget {
   const PantallaRegistro({super.key});
@@ -30,10 +31,6 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Registrando usuario...')),
-    );
-
     try {
       final Map<String, String> userData = {
         'Nombre': nombre,
@@ -47,16 +44,25 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(resultado['success']
-            ? 'Usuario registrado correctamente'
-            : 'Error: ${resultado['message']}')),
-      );
-
       if (resultado['success']) {
+        // Guardar datos del usuario en SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('name', nombre);
+        await prefs.setString('lastName', apellido);
+        await prefs.setString('email', email);
+        await prefs.setString('phone', telefono);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Usuario registrado correctamente')),
+        );
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const Pantallaregistroexito()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${resultado['message']}')),
         );
       }
     } catch (e) {

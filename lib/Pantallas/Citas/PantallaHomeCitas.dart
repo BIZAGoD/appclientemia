@@ -54,15 +54,19 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
   Future<void> cargarCitas() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final userName = prefs.getString('name');
-      final userLastName = prefs.getString('lastName');
+      final String? userEmail = prefs.getString('email'); // Obtener el email del usuario que inició sesión
+
+      if (userEmail == null) {
+        // Manejar el caso en que no hay un usuario autenticado
+        return;
+      }
 
       final response = await http.get(Uri.parse(
-          'https://followcar-api-railway-production.up.railway.app/api/citasClientes'));
-          
+          'https://followcar-api-railway-production.up.railway.app/api/citasClientes?email=$userEmail')); // Filtrar por email
+           
       if (response.statusCode == 200) {
         final List<dynamic> citasJson = json.decode(response.body);
-        print('Buscando citas para el usuario: $userName $userLastName'); // Debugging
+        print('Buscando citas para el usuario: $userName'); // Debugging
         
         setState(() {
           // Filtrar las citas que corresponden al usuario actual basado en las placas
