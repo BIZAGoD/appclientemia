@@ -6,7 +6,7 @@
     <application
         android:label="appcliente"
         android:name="${applicationName}"
-        android:icon="@mipmap/logoapp"> <!-- Nombre en minúsculas -->
+        android:icon="@mipmap/logoapp2">         <!-- Nombre en minúsculas -->
         
         <activity
             android:name=".MainActivity"
