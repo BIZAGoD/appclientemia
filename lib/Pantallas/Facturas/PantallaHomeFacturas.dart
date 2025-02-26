@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'dart:io';
 
 class PantallaHomeFacturas extends StatefulWidget {
   const PantallaHomeFacturas({super.key});
@@ -19,6 +20,7 @@ class _PantallaHomeFacturasState extends State<PantallaHomeFacturas> {
   String userName = '';
   List<dynamic> facturas = [];
   bool isLoading = true;
+  String? userImagePath;
 
   @override
   void initState() {
@@ -31,6 +33,7 @@ class _PantallaHomeFacturasState extends State<PantallaHomeFacturas> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       userName = '${prefs.getString('name') ?? ''} ${prefs.getString('lastName') ?? ''}';
+      userImagePath = prefs.getString('userImagePath');
     });
   }
 
@@ -337,9 +340,11 @@ class _PantallaHomeFacturasState extends State<PantallaHomeFacturas> {
                         width: 3,
                       ),
                     ),
-                    child: const CircleAvatar(
+                    child: CircleAvatar(
                       radius: 45,
-                      backgroundImage: AssetImage('assets/perfil.webp'),
+                      backgroundImage: userImagePath != null 
+                          ? FileImage(File(userImagePath!))
+                          : const AssetImage('assets/perfil2.webp') as ImageProvider,
                     ),
                   ),
                   Text(

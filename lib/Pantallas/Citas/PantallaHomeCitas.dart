@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 class PantallaHomeCitas extends StatefulWidget {
   const PantallaHomeCitas({super.key});
@@ -21,6 +22,7 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
   bool isLoading = true;
   String? userEmail;
   String userName = '';
+  String? userImagePath;
 
   @override 
   void initState() {
@@ -33,6 +35,7 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       userName = '${prefs.getString('name') ?? ''} ${prefs.getString('lastName') ?? ''}';
+      userImagePath = prefs.getString('userImagePath');
     });
   }
 
@@ -354,9 +357,11 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
                         width: 3,
                       ),
                     ),
-                    child: const CircleAvatar(
+                    child: CircleAvatar(
                       radius: 45,
-                      backgroundImage: AssetImage('assets/perfil.webp'),
+                      backgroundImage: userImagePath != null 
+                          ? FileImage(File(userImagePath!))
+                          : const AssetImage('assets/perfil2.webp') as ImageProvider,
                     ),
                   ),
                   Text(

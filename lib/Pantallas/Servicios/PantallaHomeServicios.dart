@@ -312,7 +312,7 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
                       backgroundColor: Colors.white,
                       backgroundImage: userImagePath != null 
                           ? FileImage(File(userImagePath!))
-                          : const AssetImage('assets/perfil.webp') as ImageProvider,
+                          : const AssetImage('assets/perfil2.webp') as ImageProvider,
                     ),
                   ),
                   Text(

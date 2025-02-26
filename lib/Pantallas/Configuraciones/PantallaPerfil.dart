@@ -44,7 +44,18 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: const Color.fromARGB(255, 237, 83, 65),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromARGB(255, 46, 5, 82),
+                Color.fromARGB(255, 237, 83, 65),
+              ],
+            ),
+          ),
+        ),
         elevation: 4,
         centerTitle: true,
         title: const Text(
