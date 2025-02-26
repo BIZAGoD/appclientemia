@@ -1,6 +1,6 @@
 import 'package:appcliente/CodeVerficacion.dart';
 import 'package:flutter/material.dart';
-
+import 'package:appcliente/PantallaInicio.dart';
 
 class Recuperacionpassword extends StatelessWidget {
   const Recuperacionpassword({super.key});
@@ -43,7 +43,6 @@ class Recuperacionpassword extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 40),
-
             TextField(
               decoration: InputDecoration(
                 labelText: 'Correo Electrónico',
@@ -77,11 +76,12 @@ class Recuperacionpassword extends StatelessWidget {
               ),
               child: const Text('Continuar'),
             ),
-            
             const SizedBox(height: 16),
-
               ElevatedButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PantallaInicio()),
+                ),
                 
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
