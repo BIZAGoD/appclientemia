@@ -55,20 +55,21 @@ class _PantallaInicioState extends State<PantallaInicio> {
       if (response.statusCode == 200) {
         final List<dynamic> usuarios = json.decode(response.body);
         
+        debugPrint('Usuarios obtenidos: $usuarios');
+
         final usuarioEncontrado = usuarios.firstWhere(
           (usuario) =>
               usuario["Email"].toString().toLowerCase() == emailController.text.toLowerCase() &&
-              usuario["Clave"] == claveController.text,
+              usuario["Clave"].toString() == claveController.text,
           orElse: () => null,
         );
 
         if (usuarioEncontrado != null) {
           final prefs = await SharedPreferences.getInstance();
           await Future.wait([
-            prefs.setInt('userId', usuarioEncontrado["id"]),
+            prefs.setString('email', usuarioEncontrado["Email"]),
             prefs.setString('name', usuarioEncontrado["Nombre"]),
             prefs.setString('lastName', usuarioEncontrado["Apellido"]),
-            prefs.setString('email', usuarioEncontrado["Email"]),
             prefs.setString('phone', usuarioEncontrado["Telefono"]),
             prefs.setString('password', usuarioEncontrado["Clave"]),
           ]);
@@ -86,10 +87,10 @@ class _PantallaInicioState extends State<PantallaInicio> {
           });
         }
       } else {
-        _mostrarError("Error al conectar con la API");
+        _mostrarError("Error al conectar con la API: ${response.statusCode}");
       }
     } catch (e) {
-      _mostrarError("Ocurrió un error");
+      _mostrarError("Ocurrió un error: $e");
       debugPrint('Error en login: $e');
     } finally {
       if (mounted) {

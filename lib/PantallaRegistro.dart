@@ -105,10 +105,6 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
         await prefs.setString('email', email);
         await prefs.setString('phone', telefono);
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Usuario registrado correctamente')),
-        );
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const Pantallaregistroexito()),
