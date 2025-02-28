@@ -20,20 +20,31 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
   final TextEditingController _placasController = TextEditingController();
   bool _hasVehicle = false;
   bool _isLoading = true;
+  String? _userEmail;
 
   @override
   void initState() {
     super.initState();
+    _getUserEmail();
     _cargarDatosGuardados();
     if (!_hasVehicle) {
-      // Si no hay vehículo, solicita los datos del vehículo
       _solicitarDatosVehiculo();
     }
   }
 
+  Future<void> _getUserEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userEmail = prefs.getString('userEmail') ?? 'usuario@ejemplo.com';
+    });
+  }
+
   Future<void> _cargarDatosGuardados() async {
     try {
-      // First try to get data from API
+      if (_userEmail == null) {
+        throw Exception('Email de usuario no encontrado');
+      }
+
       final urlGet = Uri.parse(
           "https://followcar-api-railway-production.up.railway.app/api/citasClientes");
       
@@ -46,36 +57,33 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
 
       if (responseGet.statusCode == 200) {
         final List<dynamic> citas = json.decode(responseGet.body);
-        // Get the most recent vehicle data
-        if (citas.isNotEmpty) {
-          final citaMasReciente = citas.reduce((a, b) {
+        // Filtrar citas por el email del usuario actual
+        final citasUsuario = citas.where((cita) => 
+          cita['Email']?.toString() == _userEmail
+        ).toList();
+        
+        if (citasUsuario.isNotEmpty) {
+          final citaMasReciente = citasUsuario.reduce((a, b) {
             final fechaA = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(1900);
             final fechaB = DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(1900);
             return fechaA.isAfter(fechaB) ? a : b;
           });
           
-          if (citaMasReciente != null) {
-            setState(() {
-              _modeloController.text = citaMasReciente['Modelo']?.toString() ?? '';
-              _marcaController.text = citaMasReciente['Marca']?.toString() ?? '';
-              _anioController.text = citaMasReciente['Anio']?.toString() ?? '';
-              _placasController.text = citaMasReciente['Placas']?.toString() ?? '';
-              _hasVehicle = _placasController.text.isNotEmpty;
-              _isLoading = false;
-            });
+          setState(() {
+            _modeloController.text = citaMasReciente['Modelo']?.toString() ?? '';
+            _marcaController.text = citaMasReciente['Marca']?.toString() ?? '';
+            _anioController.text = citaMasReciente['Anio']?.toString() ?? '';
+            _placasController.text = citaMasReciente['Placas']?.toString() ?? '';
+            _hasVehicle = _placasController.text.isNotEmpty;
+            _isLoading = false;
+          });
 
-            // Update local storage with API data
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.setString('modelo', _modeloController.text);
-            await prefs.setString('marca', _marcaController.text);
-            await prefs.setString('anio', _anioController.text);
-            await prefs.setString('placas', _placasController.text);
-            return;
-          }
+          await _guardarDatos();
+          return;
         }
       }
 
-      // Fallback to local storage if API fails or returns no data
+      // Fallback a datos locales
       final prefs = await SharedPreferences.getInstance();
       setState(() {
         _modeloController.text = prefs.getString('modelo') ?? '';
@@ -134,7 +142,7 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
     await _guardarDatos();
 
     final Map<String, dynamic> citaData = {
-      "Email": "usuario@ejemplo.com",
+      "Email": _userEmail,
       "Modelo": _modeloController.text,
       "Marca": _marcaController.text,
       "Anio": _anioController.text,
@@ -184,6 +192,10 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
 
   void _editarVehiculo() async {
     try {
+      if (_userEmail == null) {
+        throw Exception('Email de usuario no encontrado');
+      }
+
       if (_placasController.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -194,67 +206,49 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
         return;
       }
 
-      // Primero necesitamos obtener el ID de la cita basado en las placas
-      final urlGet = Uri.parse(
-          "https://followcar-api-railway-production.up.railway.app/api/citasClientes");
-      
-      final responseGet = await http.get(
-        urlGet,
+      final Map<String, dynamic> citaData = {
+        "Email": _userEmail,
+        "Modelo": _modeloController.text,
+        "Marca": _marcaController.text,
+        "Anio": _anioController.text,
+        "Placas": _placasController.text,
+        "FechaCita": _fechaController.text.isEmpty ? null : _fechaController.text,
+      };
+
+      final urlUpdate = Uri.parse(
+          "https://followcar-api-railway-production.up.railway.app/api/citasClientes/${Uri.encodeComponent(_userEmail!)}");
+
+      print('URL de actualización: $urlUpdate'); // Debug
+      print('Datos a actualizar: $citaData'); // Debug
+
+      final response = await http.put(
+        urlUpdate,
         headers: {
+          "Content-Type": "application/json",
           "Accept": "application/json",
         },
+        body: json.encode(citaData),
       );
 
-      if (responseGet.statusCode == 200) {
-        final List<dynamic> citas = json.decode(responseGet.body);
-        final cita = citas.firstWhere(
-          (cita) => cita['Placas'] == _placasController.text,
-          orElse: () => null,
-        );
+      print('Código de respuesta: ${response.statusCode}'); // Debug
+      print('Cuerpo de respuesta: ${response.body}'); // Debug
 
-        if (cita == null) {
-          throw Exception('No se encontró la cita con esas placas');
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        await _guardarDatos();
+        setState(() {
+          _hasVehicle = true;
+        });
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Vehículo actualizado exitosamente'),
+              backgroundColor: Colors.green,
+            ),
+          );
         }
-
-        final citaId = cita['id'].toString();
-
-        final Map<String, dynamic> citaData = {
-          "Modelo": _modeloController.text,
-          "Marca": _marcaController.text,
-          "Anio": _anioController.text,
-          "Placas": _placasController.text,
-          "FechaCita": _fechaController.text,
-        };
-
-        final urlUpdate = Uri.parse(
-            "https://followcar-api-railway-production.up.railway.app/api/citasClientes/$citaId");
-
-        final response = await http.put(
-          urlUpdate,
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-          },
-          body: json.encode(citaData),
-        );
-
-        if (response.statusCode == 204) {
-          await _guardarDatos();
-          setState(() {
-            _hasVehicle = true;
-          });
-          
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Vehículo actualizado exitosamente'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
-        } else {
-          throw Exception('Error al actualizar la cita');
-        }
+      } else {
+        throw Exception('Error al actualizar la cita. Código: ${response.statusCode}, Respuesta: ${response.body}');
       }
     } catch (e) {
       print('Error en _editarVehiculo: $e');
@@ -271,76 +265,51 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
 
   void _eliminarVehiculo() async {
     try {
-      if (_placasController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error: No hay placas identificadas'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
+      if (_userEmail == null) {
+        throw Exception('Email de usuario no encontrado');
       }
 
-      // Primero necesitamos obtener el ID de la cita basado en las placas
-      final urlGet = Uri.parse(
-          "https://followcar-api-railway-production.up.railway.app/api/citasClientes");
-      
-      final responseGet = await http.get(
-        urlGet,
+      final urlDelete = Uri.parse(
+          "https://followcar-api-railway-production.up.railway.app/api/citasClientes/${Uri.encodeComponent(_userEmail!)}");
+
+      print('URL de eliminación: $urlDelete'); // Debug
+
+      final response = await http.delete(
+        urlDelete,
         headers: {
           "Accept": "application/json",
         },
       );
 
-      if (responseGet.statusCode == 200) {
-        final List<dynamic> citas = json.decode(responseGet.body);
-        final cita = citas.firstWhere(
-          (cita) => cita['Placas'] == _placasController.text,
-          orElse: () => null,
-        );
+      print('Código de respuesta eliminación: ${response.statusCode}'); // Debug
+      print('Cuerpo de respuesta eliminación: ${response.body}'); // Debug
 
-        if (cita == null) {
-          throw Exception('No se encontró la cita con esas placas');
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        // Limpiar datos locales
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('modelo');
+        await prefs.remove('marca');
+        await prefs.remove('anio');
+        await prefs.remove('placas');
+        
+        setState(() {
+          _modeloController.clear();
+          _marcaController.clear();
+          _anioController.clear();
+          _placasController.clear();
+          _hasVehicle = false;
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Vehículo eliminado exitosamente'),
+              backgroundColor: Colors.green,
+            ),
+          );
         }
-
-        final citaId = cita['id'].toString();
-
-        final urlDelete = Uri.parse(
-            "https://followcar-api-railway-production.up.railway.app/api/citasClientes/$citaId");
-
-        final response = await http.delete(
-          urlDelete,
-          headers: {
-            "Accept": "application/json",
-          },
-        );
-
-        if (response.statusCode == 204) {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.remove('modelo');
-          await prefs.remove('marca');
-          await prefs.remove('anio');
-          await prefs.remove('placas');
-          
-          setState(() {
-            _modeloController.clear();
-            _marcaController.clear();
-            _anioController.clear();
-            _placasController.clear();
-            _hasVehicle = false;
-          });
-
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Vehículo eliminado exitosamente'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
-        } else {
-          throw Exception('Error al eliminar la cita');
-        }
+      } else {
+        throw Exception('Error al eliminar la cita. Código: ${response.statusCode}, Respuesta: ${response.body}');
       }
     } catch (e) {
       print('Error en _eliminarVehiculo: $e');
