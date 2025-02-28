@@ -468,16 +468,21 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
       ),
       
 
-      floatingActionButton: FloatingActionButton(          //AQUI EMPIEZA LO DEL BOTON DE AGREGAR TALLER
-        onPressed: () {
-          // Abrir pantalla de agregar servicio
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const Pantallaagregartaller()),
-          );
-        },
-        backgroundColor:  const Color.fromARGB(255, 46, 5, 82),
-        child: const Icon(Icons.add_business_rounded, color: Colors.white),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Pantallaagregartaller()),
+              );
+            },
+            backgroundColor: const Color.fromARGB(255, 46, 5, 82),
+            child: const Icon(Icons.add_business_rounded, color: Colors.white),
+          ),
+        ],
       ),
     );
   }

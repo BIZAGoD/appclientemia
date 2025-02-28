@@ -1,5 +1,6 @@
 import 'package:appcliente/Pantallas/Servicios/PantallaAgendarServicio.dart';
 import 'package:appcliente/Pantallas/Servicios/PantallaAgregarTaller.dart';  // Importar la nueva pantalla
+import 'package:appcliente/Rescates/PantallaRescates.dart';
 import 'package:flutter/material.dart';
 
 class PantallaDetallesTaller extends StatelessWidget {
@@ -37,21 +38,21 @@ class PantallaDetallesTaller extends StatelessWidget {
             Stack(
               children: [
                 Container(
-                  height: 220,
+                  height: 250,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage('assets/ImageDelTaller.webp'),
                       fit: BoxFit.cover,
                       colorFilter: ColorFilter.mode(
-                        Colors.black.withOpacity(0.2),
+                        Colors.black.withOpacity(0.3),
                         BlendMode.darken,
                       ),
                     ),
                   ),
                 ),
                 Container(
-                  height: 220,
+                  height: 250,
                   padding: EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -59,7 +60,7 @@ class PantallaDetallesTaller extends StatelessWidget {
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.7),
+                        Colors.black.withOpacity(0.8),
                       ],
                     ),
                   ),
@@ -70,20 +71,20 @@ class PantallaDetallesTaller extends StatelessWidget {
                       Text(
                         taller.nombre,
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 32,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(height: 10),
                       Row(
                         children: [
-                          Icon(Icons.location_on, color: Colors.white70, size: 16),
-                          SizedBox(width: 4),
+                          Icon(Icons.location_on, color: Colors.white70, size: 20),
+                          SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               taller.direccion,
-                              style: TextStyle(color: Colors.white70),
+                              style: TextStyle(color: Colors.white70, fontSize: 16),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -99,6 +100,17 @@ class PantallaDetallesTaller extends StatelessWidget {
             // Información del taller
             Container(
               padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
+                  ),
+                ],
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -143,7 +155,7 @@ class PantallaDetallesTaller extends StatelessWidget {
                   Text(
                     'Servicios Disponibles',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: Color.fromARGB(255, 46, 5, 82),
                     ),
@@ -181,11 +193,48 @@ class PantallaDetallesTaller extends StatelessWidget {
 
                   SizedBox(height: 24),
 
-                  // Botones de acción
+                  Text(
+                    'Solicite un servicio',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 46, 5, 82),
+                    ),
+                  ),
+                  SizedBox(height: 12),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Expanded(
-                        flex: 3,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PantallaRescates(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color.fromARGB(255, 237, 83, 65),
+                            padding: EdgeInsets.symmetric(vertical: 18),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 5,
+                          ),
+                          child: Text(
+                            'Rescate',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.push(
@@ -197,15 +246,16 @@ class PantallaDetallesTaller extends StatelessWidget {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromARGB(255, 46, 5, 82),
-                            padding: EdgeInsets.symmetric(vertical: 15),
+                            padding: EdgeInsets.symmetric(vertical: 18),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(12),
                             ),
+                            elevation: 5,
                           ),
                           child: Text(
-                            'Agendar Servicio',
+                            'Cita',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 18,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
@@ -214,7 +264,6 @@ class PantallaDetallesTaller extends StatelessWidget {
                       ),
                       SizedBox(width: 12),
                       Expanded(
-                        flex: 1,
                         child: ElevatedButton(
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -223,15 +272,16 @@ class PantallaDetallesTaller extends StatelessWidget {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 15),
+                            padding: EdgeInsets.symmetric(vertical: 18),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              side: BorderSide(color: Colors.grey[300]!),
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(color: Color.fromARGB(255, 237, 83, 65)),
                             ),
                           ),
                           child: Icon(
                             Icons.favorite_rounded,
-                            color: Colors.pinkAccent,
+                            color: Color.fromARGB(255, 237, 83, 65),
+                            size: 30,
                           ),
                         ),
                       ),

@@ -11,6 +11,7 @@ class Taller {
   final String email;
   final String horario;
   final String logo;
+  final String? rescate;
 
   Taller({
     required this.nombre,
@@ -19,6 +20,7 @@ class Taller {
     required this.email,
     required this.horario,
     required this.logo,
+    this.rescate,
   });
 
   factory Taller.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class Taller {
       email: json['Email'],
       horario: json['Horario'],
       logo: json['Logo'],
+      rescate: json['Rescate'],
     );
   }
 }
@@ -44,6 +47,7 @@ class _PantallaAggTallerState extends State<Pantallaagregartaller> {
   List<Taller> talleresDisponibles = [];
   List<Taller> talleresFiltrados = [];
   TextEditingController searchController = TextEditingController();
+  String? tipoFiltrado; // Variable para el tipo de filtrado
 
   @override
   void initState() {
@@ -75,12 +79,20 @@ class _PantallaAggTallerState extends State<Pantallaagregartaller> {
   void _filtrarTalleres() {
     String query = searchController.text.toLowerCase();
     setState(() {
-      talleresFiltrados = talleresDisponibles
-          .where((taller) =>
-              taller.nombre.toLowerCase().contains(query) ||
-              taller.direccion.toLowerCase().contains(query) ||
-              taller.telefono.toLowerCase().contains(query))
-          .toList();
+      talleresFiltrados = talleresDisponibles.where((taller) {
+        bool matchesQuery = taller.nombre.toLowerCase().contains(query);
+        bool matchesTipoFiltrado = tipoFiltrado == null || 
+            (tipoFiltrado == "Rescates" && taller.rescate == "Sí") || 
+            (tipoFiltrado == "Todos"); // Mostrar todos si se selecciona "Todos"
+        return matchesQuery && matchesTipoFiltrado;
+      }).toList();
+    });
+  }
+
+  void _cambiarTipoFiltrado(String? nuevoTipo) {
+    setState(() {
+      tipoFiltrado = nuevoTipo;
+      _filtrarTalleres(); // Refiltrar después de cambiar el tipo
     });
   }
 
@@ -88,7 +100,7 @@ class _PantallaAggTallerState extends State<Pantallaagregartaller> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PantallaDetallesTaller(taller: taller,),
+        builder: (context) => PantallaDetallesTaller(taller: taller),
       ),
     );
   }
@@ -96,8 +108,8 @@ class _PantallaAggTallerState extends State<Pantallaagregartaller> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar( 
-        iconTheme: const IconThemeData(color: Colors.white),  
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: Colors.white),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -112,27 +124,47 @@ class _PantallaAggTallerState extends State<Pantallaagregartaller> {
         ),
         title: const Text(
           "Talleres Disponibles",
-          style: TextStyle(color: Colors.white),   
+          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.normal),
         ),
-
-
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            DropdownButton<String>(
+              value: tipoFiltrado,
+              hint: const Text('Filtrar por', style: TextStyle(fontSize: 16)),
+              items: <String>['Todos', 'Rescates'].map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value, style: const TextStyle(fontSize: 16)),
+                );
+              }).toList(),
+              onChanged: _cambiarTipoFiltrado,
+              isExpanded: true,
+              style: const TextStyle(color: Color(0xFF2E0552)),
+              dropdownColor: Colors.white,
+            ),
             TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: 'Buscar taller...',
-                prefixIcon: const Icon(Icons.search),
+                hintText: 'Buscar taller por nombre...',
+                prefixIcon: const Icon(Icons.search, color: Color(0xFF2E0552)),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(color: Color(0xFF2E0552)),
                 ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(color: Color(0xFFED5341)),
+                ),
+                filled: true,
+                fillColor: Colors.white,
               ),
+              onChanged: (value) {
+                _filtrarTalleres(); // Filtrar al escribir
+              },
             ),
-
             const SizedBox(height: 10),
             Expanded(
               child: talleresFiltrados.isNotEmpty
@@ -147,7 +179,7 @@ class _PantallaAggTallerState extends State<Pantallaagregartaller> {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
+                                color: Colors.black.withOpacity(0.1),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -274,6 +306,4 @@ class _PantallaAggTallerState extends State<Pantallaagregartaller> {
     );
   }
 }
-
-                                                                // Pantalla de detalles del taller
 

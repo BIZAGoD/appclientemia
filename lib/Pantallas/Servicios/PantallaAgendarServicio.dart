@@ -25,6 +25,10 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
   void initState() {
     super.initState();
     _cargarDatosGuardados();
+    if (!_hasVehicle) {
+      // Si no hay vehículo, solicita los datos del vehículo
+      _solicitarDatosVehiculo();
+    }
   }
 
   Future<void> _cargarDatosGuardados() async {
@@ -130,6 +134,7 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
     await _guardarDatos();
 
     final Map<String, dynamic> citaData = {
+      "Email": "usuario@ejemplo.com",
       "Modelo": _modeloController.text,
       "Marca": _marcaController.text,
       "Anio": _anioController.text,
@@ -348,6 +353,11 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
         );
       }
     }
+  }
+
+  void _solicitarDatosVehiculo() {
+    // Aquí puedes mostrar un diálogo o un formulario para que el usuario ingrese los datos del vehículo
+    // Por ejemplo, puedes usar un showDialog o un BottomSheet para solicitar los datos
   }
 
   @override

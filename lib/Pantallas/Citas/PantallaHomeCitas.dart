@@ -72,8 +72,9 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
         print('Buscando citas para el usuario: $userName'); // Debugging
         
         setState(() {
-          // Filtrar las citas que corresponden al usuario actual basado en las placas
+          // Filtrar las citas que corresponden al usuario actual basado en el email
           citas = citasJson
+              .where((json) => json['Email'] == userEmail) // Filtrar por email
               .map((json) => Cita.fromJson(json))
               .toList();
           isLoading = false;
