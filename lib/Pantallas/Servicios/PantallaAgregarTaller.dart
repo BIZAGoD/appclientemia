@@ -10,8 +10,10 @@ class Taller {
   final String telefono;
   final String email;
   final String horario;
-  final String logo;
+  final String? logo;
   final String? rescate;
+  final String? created_at;
+  final String? updated_at;
 
   Taller({
     required this.nombre,
@@ -19,8 +21,10 @@ class Taller {
     required this.telefono,
     required this.email,
     required this.horario,
-    required this.logo,
+    this.logo,
     this.rescate,
+    this.created_at,
+    this.updated_at,
   });
 
   factory Taller.fromJson(Map<String, dynamic> json) {
@@ -32,6 +36,8 @@ class Taller {
       horario: json['Horario'],
       logo: json['Logo'],
       rescate: json['Rescate'],
+      created_at: json['created_at'],
+      updated_at: json['updated_at'],
     );
   }
 }
@@ -202,7 +208,7 @@ class _PantallaAggTallerState extends State<Pantallaagregartaller> {
                                           color: const Color(0xFF2E0552).withOpacity(0.1),
                                           borderRadius: BorderRadius.circular(12),
                                         ),
-                                        child: taller.logo.isNotEmpty
+                                        child: taller.logo?.isNotEmpty == true
                                             ? ClipRRect(
                                                 borderRadius: BorderRadius.circular(12),
                                                 child: Image.network(

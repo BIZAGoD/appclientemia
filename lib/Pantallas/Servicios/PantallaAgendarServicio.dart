@@ -136,24 +136,39 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
   }
 
   Future<void> _agendarCita() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-    await _guardarDatos();
-
-    final Map<String, dynamic> citaData = {
-      "Email": _userEmail,
-      "Modelo": _modeloController.text,
-      "Marca": _marcaController.text,
-      "Anio": _anioController.text,
-      "Placas": _placasController.text,
-      "FechaCita": _fechaController.text,
-    };
-
-    final url = Uri.parse(
-        "https://followcar-api-railway-production.up.railway.app/api/citasClientes");
-
     try {
+      if (!_formKey.currentState!.validate()) {
+        print('Formulario no válido');
+        return;
+      }
+
+      // Verificar que todos los campos requeridos estén llenos
+      if (_fechaController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Por favor seleccione una fecha para la cita'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      await _guardarDatos();
+
+      final Map<String, dynamic> citaData = {
+        "Email": _userEmail,
+        "Modelo": _modeloController.text,
+        "Marca": _marcaController.text,
+        "Anio": _anioController.text,
+        "Placas": _placasController.text,
+        "FechaCita": _fechaController.text,
+      };
+
+      print('Datos a enviar: $citaData'); // Debug print
+
+      final url = Uri.parse(
+          "https://followcar-api-railway-production.up.railway.app/api/citasClientes");
+
       final response = await http.post(
         url,
         headers: {
@@ -163,13 +178,20 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
         body: json.encode(citaData),
       );
 
+      print('Código de respuesta: ${response.statusCode}'); // Debug print
+      print('Respuesta del servidor: ${response.body}'); // Debug print
+
       if (response.statusCode == 201 || response.statusCode == 200) {
+        if (!mounted) return;
+        
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
               builder: (context) => const PantallaCitaAgendada()),
         );
       } else {
+        if (!mounted) return;
+        
         Map<String, dynamic> errorResponse = json.decode(response.body);
         String errorMessage = errorResponse['message'] ?? 'Error al agendar la cita. Inténtelo de nuevo.';
         
@@ -181,10 +203,14 @@ class _PantallaAgendarServicioState extends State<PantallaAgendarServicio> {
         );
       }
     } catch (e) {
+      print('Error en _agendarCita: $e'); // Debug print
+      if (!mounted) return;
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error de conexión: $e'),
+          content: Text('Error al agendar la cita: $e'),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
         ),
       );
     }
