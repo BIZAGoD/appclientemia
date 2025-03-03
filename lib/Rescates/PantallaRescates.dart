@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class PantallaRescates extends StatefulWidget {
+  const PantallaRescates({super.key});
+
   @override
   _PantallaRescatesState createState() => _PantallaRescatesState();
 }

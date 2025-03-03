@@ -163,6 +163,18 @@ class _PantallaEditState extends State<PantallaEdit> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
+         flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromARGB(255, 46, 5, 82),
+                Color.fromARGB(255, 237, 83, 65),
+              ],
+            ),
+          ),
+        ),
         title: const Text('Editar Perfil', 
           style: TextStyle(
             color: Colors.white,
