@@ -5,6 +5,7 @@ import 'package:appcliente/Pantallas/Configuraciones/PantallaModoOscuro.dart';
 import 'package:appcliente/Pantallas/Configuraciones/PantallaPerfil.dart';
 import 'package:appcliente/Pantallas/Servicios/PantallaAgregarTaller.dart';
 import 'package:appcliente/Pantallas/Servicios/PantallaDetalleServicio.dart';
+import 'package:appcliente/Rescates/PantallaRescates.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
@@ -463,28 +464,40 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
             );
           }
         },
-        selectedItemColor: const Color.fromARGB(255, 46, 5, 82),
+        selectedItemColor: const Color(0xFF2E0552),
         unselectedItemColor: const Color.fromARGB(255, 237, 83, 65),
       ),
       
 
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           FloatingActionButton(
+            heroTag: 'secondary_fab',
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Pantallaagregartaller()),
+                MaterialPageRoute(builder: (context) => const PantallaRescates()), // Navega a PantallaAgregarTaller
               );
             },
-            backgroundColor: const Color.fromARGB(255, 46, 5, 82),
-            child: const Icon(Icons.add_business_rounded, color: Colors.white),
+            backgroundColor: Color.fromRGBO(237, 83, 65, 1),
+            child: const Icon(Icons.car_crash_rounded, color: Colors.white),
+          ),
+          const SizedBox(height: 10),
+          FloatingActionButton(
+            heroTag: 'primary_fab',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Pantallaagregartaller()), // Navega a PantallaAgregarTaller
+              );
+            },
+            backgroundColor: Color.fromRGBO(46, 5, 82, 1) ,
+            child: const Icon(Icons.add_business_rounded, color: Colors.white,),
           ),
         ],
       ),
-    );
+      );
   }
 
   Widget _buildInfoChip(IconData icon, String text, Color color) {
