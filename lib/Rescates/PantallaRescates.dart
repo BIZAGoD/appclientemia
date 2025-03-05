@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:geocoding/geocoding.dart';
 
 class PantallaRescates extends StatefulWidget {
   const PantallaRescates({super.key});
@@ -16,7 +17,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
   String _descripcion = '';
   bool _solicitudEnviada = false;
   GoogleMapController? _mapController;
-  LatLng? _selectedLocation;
+  LatLng? _selectedLocation = LatLng(40.4168, -3.7038); // Coordenadas iniciales de Madrid
   Set<Marker> _markers = {};
 
   final List<String> _problemas = [
@@ -44,7 +45,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
   Future<void> _checkLocationPermission() async {
     final status = await Permission.location.request();
     if (status.isGranted) {
-      _getCurrentLocation();
+      await _getCurrentLocation();
     }
   }
 
@@ -56,15 +57,22 @@ class _PantallaRescatesState extends State<PantallaRescates> {
       setState(() {
         _selectedLocation = LatLng(position.latitude, position.longitude);
         _updateMarker(_selectedLocation!);
-      });
-      _mapController?.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: _selectedLocation!,
-            zoom: 15,
+        _mapController?.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: _selectedLocation!,
+              zoom: 15,
+            ),
           ),
-        ),
-      );
+        );
+      });
+      
+      // Obtener la dirección a partir de la ubicación
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+      String address = placemarks[0].street ?? 'Dirección no disponible'; // Obtener la dirección
+      print("Dirección: $address"); // Imprimir la dirección en la consola
+
+      // Aquí puedes agregar lógica para actualizar la ubicación en tiempo real si es necesario
     } catch (e) {
       print("Error getting location: $e");
     }
@@ -283,10 +291,12 @@ class _PantallaRescatesState extends State<PantallaRescates> {
                           )
                         : GoogleMap(
                             initialCameraPosition: CameraPosition(
-                              target: _selectedLocation!,
+                              target: _selectedLocation ?? LatLng(0, 0),
                               zoom: 15,
                             ),
-                            onMapCreated: (controller) => _mapController = controller,
+                            onMapCreated: (controller) {
+                              _mapController = controller;
+                            },
                             markers: _markers,
                             myLocationEnabled: true,
                             myLocationButtonEnabled: true,
