@@ -12,8 +12,10 @@ class Taller {
   final String horario;
   final String? logo;
   final String? rescate;
-  final String? created_at;
-  final String? updated_at;
+  final String? createdAt;
+  final String? updatedAt;
+  final double? latitud;
+  final double? longitud;
 
   Taller({
     required this.nombre,
@@ -23,24 +25,29 @@ class Taller {
     required this.horario,
     this.logo,
     this.rescate,
-    this.created_at,
-    this.updated_at,
+    this.createdAt,
+    this.updatedAt,
+    this.latitud,
+    this.longitud,
   });
 
   factory Taller.fromJson(Map<String, dynamic> json) {
     return Taller(
-      nombre: json['Nombre'],                         // Debe coincidir con la API
-      direccion: json['Direccion'],
-      telefono: json['Telefono'],
-      email: json['Email'],
-      horario: json['Horario'],
+      nombre: json['Nombre'],                         
+      direccion: json['Direccion'] ?? '',  // Manejo de valores nulos
+      telefono: json['Telefono'] ?? '',
+      email: json['Email'] ?? '',
+      horario: json['Horario'] ?? '',
       logo: json['Logo'],
       rescate: json['Rescate'],
-      created_at: json['created_at'],
-      updated_at: json['updated_at'],
+      createdAt: json['created_at'],
+      updatedAt: json['updated_at'],
+      latitud: json['Latitud'] != null ? double.tryParse(json['Latitud'].toString()) : null,
+      longitud: json['Longitud'] != null ? double.tryParse(json['Longitud'].toString()) : null,
     );
   }
 }
+
 
 class Pantallaagregartaller extends StatefulWidget {
   const Pantallaagregartaller({super.key});
