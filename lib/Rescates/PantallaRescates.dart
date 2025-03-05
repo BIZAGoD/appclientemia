@@ -3,6 +3,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PantallaRescates extends StatefulWidget {
   const PantallaRescates({super.key});
@@ -17,7 +20,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
   String _descripcion = '';
   bool _solicitudEnviada = false;
   GoogleMapController? _mapController;
-  LatLng? _selectedLocation = LatLng(40.4168, -3.7038); // Coordenadas iniciales de Madrid
+  LatLng? _selectedLocation = LatLng(20.886074386383374, -89.74972281045804); // Coordenadas iniciales de YOYOS BURGER
   Set<Marker> _markers = {};
 
   final List<String> _problemas = [
@@ -91,12 +94,44 @@ class _PantallaRescatesState extends State<PantallaRescates> {
     });
   }
 
-  void _enviarSolicitud() {
+  void _enviarSolicitud() async {
     if (_formKey.currentState!.validate() && _selectedLocation != null) {
       _formKey.currentState!.save();
       setState(() {
         _solicitudEnviada = true;
       });
+
+      // Obtener datos del usuario desde Shared Preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String nombre = prefs.getString('nombre') ?? 'Usuario'; // Valor por defecto
+      String email = prefs.getString('email') ?? 'usuario@example.com'; // Valor por defecto
+
+      // Crear el objeto de datos a enviar
+      final data = {
+        'nombre': nombre,
+        'email': email,
+        'fecha': '${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}', // Formato D-M-Y
+        'estado': 'pendiente',
+        'latitud': _selectedLocation!.latitude.toString(), // Convertir a String
+        'longitud': _selectedLocation!.longitude.toString(), // Convertir a String
+        'problema': _problemaSeleccionado, // Agregar el tipo de problema
+        'descripcion': _descripcion, // Agregar la descripción del problema
+      };
+
+    
+      final response = await http.post(
+        Uri.parse('https://followcar-api-railway-production.up.railway.app/api/rescates'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data),
+      );
+
+      // Manejar la respuesta
+      if (response.statusCode == 200) {
+        print('Solicitud enviada con éxito');
+      } else {
+        print('Error al enviar la solicitud: ${response.statusCode}');
+        print('Cuerpo de la respuesta: ${response.body}'); // Imprimir el cuerpo de la respuesta
+      }
     } else if (_selectedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
