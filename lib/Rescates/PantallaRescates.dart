@@ -292,7 +292,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
             children: [
               _buildSection(
                 icon: Icons.location_on,
-                title: 'Su ubicación',
+                title: 'Usted esta aqui',
                 child: Container(
                   height: 280,
                   decoration: BoxDecoration(
@@ -352,7 +352,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
               const SizedBox(height: 24),
               _buildSection(
                 icon: Icons.build_circle,
-                title: 'Detalles del Problema',
+                title: 'Problema',
                 child: Column(
                   children: [
                     DropdownButtonFormField(
@@ -393,7 +393,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: backgroundColor,
-                        labelText: 'Descripción detallada',
+                        labelText: 'Indiquenos su problema..',
                         labelStyle: TextStyle(color: primaryColor),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -410,7 +410,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor, ingrese una descripción';
+                          return 'Por favor, indiquenos su problema';
                         }
                         return null;
                       },
@@ -425,8 +425,8 @@ class _PantallaRescatesState extends State<PantallaRescates> {
               _buildButton(
                 onPressed: _enviarSolicitud,
                 text: 'Solicitar Rescate',
-                icon: Icons.send,
-                color: accentColor,
+                icon: Icons.send_rounded,
+                color: Color.fromRGBO(237, 83, 65, 1),
                 elevation: 5,
               ),
             ],
