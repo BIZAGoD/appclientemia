@@ -1,3 +1,4 @@
+import 'package:appcliente/Rescates/PantallaDetallesRescate.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -103,7 +104,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
 
       // Obtener datos del usuario desde Shared Preferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String nombre = prefs.getString('nombre') ?? 'Usuario'; // Valor por defecto
+      String nombre = prefs.getString('nombre') ?? 'nombre'; // Valor por defecto
       String email = prefs.getString('email') ?? 'usuario@example.com'; // Valor por defecto
 
       // Crear el objeto de datos a enviar
@@ -245,7 +246,10 @@ class _PantallaRescatesState extends State<PantallaRescates> {
               ],
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => PantallaDetallesRescate()),
+              ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
@@ -255,7 +259,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
                   elevation: 4,
                 ),
                 child: const Text(
-                  'Volver al inicio',
+                  'Detalles de Rescate',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.white,
