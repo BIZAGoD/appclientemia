@@ -21,7 +21,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
   bool _solicitudEnviada = false;
   GoogleMapController? _mapController;
   LatLng? _selectedLocation = LatLng(20.886074386383374, -89.74972281045804); // Coordenadas iniciales de YOYOS BURGER
-  Set<Marker> _markers = {};
+  final Set<Marker> _markers = {};
 
   final List<String> _problemas = [
     'Batería descargada',
