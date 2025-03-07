@@ -492,12 +492,12 @@ class _PantallaDetallesRescateState extends State<PantallaDetallesRescate> {
   Widget _buildListaTalleres() {
     // Filtrar talleres dentro de 10km
     final talleresEnRango = talleresOrdenados.where((taller) => 
-      (taller.distancia ?? double.infinity) <= 10.0).toList();
+      (taller.distancia ?? double.infinity) <= 15.0).toList();
 
     if (talleresEnRango.isEmpty) {
       return Center(
         child: Text(
-          'No hay talleres disponibles en un radio de 10 km',
+          'No hay talleres disponibles en un radio de 15 km',
           style: TextStyle(
             color: lightTextColor,
             fontSize: 16,

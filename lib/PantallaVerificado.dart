@@ -30,8 +30,8 @@ class Pantallaverificado extends StatelessWidget {
                   fit: BoxFit.contain,
                 ),
               ),
-              const Text(
-                'Verificacion Exitosa',
+              const Text( 
+                'Verificación Exitosa',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 28,
@@ -42,7 +42,7 @@ class Pantallaverificado extends StatelessWidget {
               const SizedBox(height: 32),
 
               const Text(
-                '!!Bienvenido!!',
+                '!!Bienvenido de nuevo!!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20,
