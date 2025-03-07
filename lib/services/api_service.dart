@@ -25,4 +25,17 @@ class ApiService {
       return {'success': false, 'message': e.toString()};
     }
   }
+
+  static Future<List<Map<String, dynamic>>> obtenerUsuarios() async {
+    final response = await http.get(
+      Uri.parse('https://followcar-api-railway-production.up.railway.app/api/usuarios'),
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return List<Map<String, dynamic>>.from(data);
+    } else {
+      throw Exception('Error al obtener usuarios');
+    }
+  }
 }

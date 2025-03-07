@@ -24,19 +24,75 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
   String? passwordError;
   bool _isPasswordVisible = false;
 
+  List<Map<String, dynamic>> usuariosExistentes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    cargarUsuarios();
+  }
+
+  Future<void> cargarUsuarios() async {
+    try {
+      usuariosExistentes = await ApiService.obtenerUsuarios();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cargar datos: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
   Future<void> registrarUsuario() async {
+    // Primero actualizamos la lista de usuarios
+    await cargarUsuarios();
+    
     final String nombre = nombreController.text.trim();
     final String apellido = apellidoController.text.trim();
     final String telefono = telefonoController.text.trim();
     final String email = emailController.text.trim();
     final String password = passwordController.text.trim();
 
-    // Inicializar errores a null
-    nombreError = null;
-    apellidoError = null;
-    telefonoError = null;
-    emailError = null;
-    passwordError = null;
+    // Reiniciar errores
+    setState(() {
+      nombreError = null;
+      apellidoError = null;
+      telefonoError = null;
+      emailError = null;
+      passwordError = null;
+    });
+
+    // Validaciones de datos existentes
+    bool datosExistentes = false;
+
+    // Validar si el correo ya existe
+    if (usuariosExistentes.any((user) => user['Email'].toString().toLowerCase() == email.toLowerCase())) {
+      setState(() {
+        emailError = 'Este correo electrónico ya está registrado';
+      });
+      datosExistentes = true;
+    }
+
+    // Validar si el teléfono ya existe
+    if (usuariosExistentes.any((user) => user['Telefono'] == telefono)) {
+      setState(() {
+        telefonoError = 'Este número de teléfono ya está registrado';
+      });
+      datosExistentes = true;
+    }
+
+    // Validar si la contraseña ya existe
+    if (usuariosExistentes.any((user) => user['Clave'] == password)) {
+      setState(() {
+        passwordError = 'Esta contraseña ya está en uso, elige otra diferente';
+      });
+      datosExistentes = true;
+    }
+
+    if (datosExistentes) {
+      return;
+    }
 
     // Validación de nombre
     final RegExp nombreRegex = RegExp(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$');
