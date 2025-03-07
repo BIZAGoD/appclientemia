@@ -137,10 +137,9 @@ class _PantallaInicioState extends State<PantallaInicio> {
                           fit: BoxFit.cover, // O prueba BoxFit.fitWidth
                         ),
                       ),
-
                       const SizedBox(height: 20),
                       const Text(
-                        'Bienvenido de vuelta!',
+                        '!Bienvenido de vuelta!',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 28,
