@@ -216,6 +216,38 @@ class _PantallaDetallesRescateState extends State<PantallaDetallesRescate> {
             ),
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.delete, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Eliminar Rescate'),
+                    content: Text('¿Estás seguro que deseas eliminar esta solicitud de rescate?'),
+                    actions: [
+                      TextButton(
+                        child: Text('Cancelar'),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      TextButton(
+                        child: Text('Eliminar'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          eliminarRescate();
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: secondaryColor,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -458,12 +490,28 @@ class _PantallaDetallesRescateState extends State<PantallaDetallesRescate> {
   }
 
   Widget _buildListaTalleres() {
+    // Filtrar talleres dentro de 10km
+    final talleresEnRango = talleresOrdenados.where((taller) => 
+      (taller.distancia ?? double.infinity) <= 10.0).toList();
+
+    if (talleresEnRango.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay talleres disponibles en un radio de 10 km',
+          style: TextStyle(
+            color: lightTextColor,
+            fontSize: 16,
+          ),
+        ),
+      );
+    }
+
     return ListView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
-      itemCount: talleresOrdenados.length,
+      itemCount: talleresEnRango.length,
       itemBuilder: (context, index) {
-        final taller = talleresOrdenados[index];
+        final taller = talleresEnRango[index];
         return Container(
           margin: EdgeInsets.only(bottom: 15),
               decoration: BoxDecoration(
@@ -659,5 +707,32 @@ class _PantallaDetallesRescateState extends State<PantallaDetallesRescate> {
         ),
       ),
     );
+  }
+
+  // Agregar método para eliminar rescate
+  Future<void> eliminarRescate() async {
+    try {
+      final response = await http.delete(
+        Uri.parse('https://followcar-api-railway-production.up.railway.app/api/rescates/${widget.userEmail}'),
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.of(context).pop(); // Regresar a la pantalla anterior
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al eliminar el rescate'),
+            backgroundColor: secondaryColor,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error de conexión: $e'),
+          backgroundColor: secondaryColor,
+        ),
+      );
+    }
   }
 }
