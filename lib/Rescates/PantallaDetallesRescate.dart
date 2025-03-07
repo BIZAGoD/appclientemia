@@ -73,9 +73,9 @@ class PantallaDetallesRescate extends StatefulWidget {
   final String userEmail; // Email del usuario actual
   
   const PantallaDetallesRescate({
-    Key? key,
+    super.key,
     required this.userEmail,
-  }) : super(key: key);
+  });
 
   @override
   State<PantallaDetallesRescate> createState() => _PantallaDetallesRescateState();
@@ -232,7 +232,6 @@ class _PantallaDetallesRescateState extends State<PantallaDetallesRescate> {
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                       TextButton(
-                        child: Text('Eliminar'),
                         onPressed: () {
                           Navigator.of(context).pop();
                           eliminarRescate();
@@ -240,6 +239,7 @@ class _PantallaDetallesRescateState extends State<PantallaDetallesRescate> {
                         style: TextButton.styleFrom(
                           foregroundColor: secondaryColor,
                         ),
+                        child: Text('Eliminar'),
                       ),
                     ],
                   );

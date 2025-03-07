@@ -1,4 +1,4 @@
-import 'package:appcliente/Pantallas/Servicios/PantallaHomeServicios.dart';
+import 'package:appcliente/PantallaInicio.dart';
 import 'package:flutter/material.dart';
 
 class Pantallaregistroexito extends StatelessWidget {
@@ -42,7 +42,7 @@ class Pantallaregistroexito extends StatelessWidget {
               const SizedBox(height: 32),
 
               const Text(
-                '!!Bienvenido!!',
+                '!!Ya puedes iniciar sesion!!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20,
@@ -55,7 +55,7 @@ class Pantallaregistroexito extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const PantallaHomeservicios()),
+                    MaterialPageRoute(builder: (context) => const PantallaInicio()),
                   );
                   // Acción al presionar el botón
                 },
