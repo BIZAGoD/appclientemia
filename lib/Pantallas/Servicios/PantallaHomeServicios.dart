@@ -6,6 +6,7 @@ import 'package:appcliente/Pantallas/Configuraciones/PantallaPerfil.dart';
 import 'package:appcliente/Pantallas/Servicios/PantallaAgregarTaller.dart';
 import 'package:appcliente/Pantallas/Servicios/PantallaDetalleServicio.dart';
 import 'package:appcliente/Rescates/PantallaRescates.dart';
+import 'package:appcliente/Rescates/PantallaDetallesRescate.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
@@ -22,21 +23,25 @@ class PantallaHomeservicios extends StatefulWidget {
 
 class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
   String userName = '';
+  String? userEmail = '';
   String? userImagePath;
   List<dynamic> servicios = [];
   bool isLoading = true;
+  bool tieneRescateActivo = false;
 
   @override
   void initState() {
     super.initState();
     _cargarDatosUsuario();
     _cargarServicios();
+    _verificarRescateActivo();
   }
 
   Future<void> _cargarDatosUsuario() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       userName = '${prefs.getString('name') ?? ''} ${prefs.getString('lastName') ?? ''}';
+      userEmail = prefs.getString('email') ?? '';
       userImagePath = prefs.getString('userImagePath');
     });
   }
@@ -57,6 +62,26 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
         isLoading = false;
       });
       print('Error al cargar servicios: $e');
+    }
+  }
+
+  Future<void> _verificarRescateActivo() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://followcar-api-railway-production.up.railway.app/api/rescates')
+      );
+      
+      if (response.statusCode == 200) {
+        final rescates = jsonDecode(response.body) as List;
+        setState(() {
+          tieneRescateActivo = rescates.any((rescate) => 
+            rescate['email'] == userEmail && 
+            rescate['estado'].toString().toLowerCase() != 'completado'
+          );
+        });
+      }
+    } catch (e) {
+      print('Error al verificar rescate: $e');
     }
   }
 
@@ -95,6 +120,75 @@ class _PantallaHomeserviciosState extends State<PantallaHomeservicios> {
                     ),
                   ),
                   const SizedBox(height: 20),
+                  if (tieneRescateActivo) ...[
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Card(
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PantallaDetallesRescate(
+                                  userEmail: userEmail ?? '',
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  const Color.fromARGB(255, 46, 5, 82),
+                                  const Color.fromARGB(255, 237, 83, 65),
+                                ],
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(
+                                    Icons.car_crash_rounded,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                const Expanded(
+                                  child: Text(
+                                    'Ver estado del rescate',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                const Icon(
+                                  Icons.arrow_forward_ios,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
                   Expanded(
                     child: isLoading 
                     ? const Center(child: CircularProgressIndicator())

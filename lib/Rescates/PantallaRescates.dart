@@ -22,7 +22,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
   bool _solicitudEnviada = false;
   GoogleMapController? _mapController;
   LatLng? _selectedLocation = LatLng(20.886074386383374, -89.74972281045804); // Coordenadas iniciales de YOYOS BURGER
-  Set<Marker> _markers = {};
+  final Set<Marker> _markers = {};
 
   final List<String> _problemas = [
     'Batería descargada',
@@ -98,45 +98,67 @@ class _PantallaRescatesState extends State<PantallaRescates> {
   void _enviarSolicitud() async {
     if (_formKey.currentState!.validate() && _selectedLocation != null) {
       _formKey.currentState!.save();
-      setState(() {
-        _solicitudEnviada = true;
-      });
 
-      // Obtener datos del usuario desde Shared Preferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String nombre = prefs.getString('nombre') ?? 'nombre'; // Valor por defecto
-      String email = prefs.getString('email') ?? 'usuario@example.com'; // Valor por defecto
+      try {
+        // Obtener datos del usuario desde Shared Preferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String nombre = prefs.getString('nombre') ?? 'Usuario';
+        String email = prefs.getString('email') ?? 'usuario@example.com';
 
-      // Crear el objeto de datos a enviar
-      final data = {
-        'nombre': nombre,
-        'email': email,
-        'fecha': '${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}', // Formato D-M-Y
-        'estado': 'pendiente',
-        'latitud': _selectedLocation!.latitude.toString(), // Convertir a String
-        'longitud': _selectedLocation!.longitude.toString(), // Convertir a String
-        'problema': _problemaSeleccionado, // Agregar el tipo de problema
-        'descripcion': _descripcion, // Agregar la descripción del problema
-      };
+        // Formatear la fecha en el formato correcto YYYY-MM-DD
+        DateTime now = DateTime.now();
+        String fecha = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
 
-    
-      final response = await http.post(
-        Uri.parse('https://followcar-api-railway-production.up.railway.app/api/rescates'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(data),
-      );
+        // Crear el objeto de datos a enviar
+        Map<String, dynamic> data = {
+          'nombre': nombre,
+          'email': email,
+          'fecha': fecha,
+          'problema': _problemaSeleccionado,
+          'descripcion': _descripcion,
+          'estado': 'pendiente',
+          'latitud': _selectedLocation!.latitude.toString(),
+          'longitud': _selectedLocation!.longitude.toString()
+        };
 
-      // Manejar la respuesta
-      if (response.statusCode == 200) {
-        print('Solicitud enviada con éxito');
-      } else {
-        print('Error al enviar la solicitud: ${response.statusCode}');
-        print('Cuerpo de la respuesta: ${response.body}'); // Imprimir el cuerpo de la respuesta
+        print('Enviando datos: ${jsonEncode(data)}'); // Para depuración
+
+        final response = await http.post(
+          Uri.parse('https://followcar-api-railway-production.up.railway.app/api/rescates'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: jsonEncode(data),
+        );
+
+        print('Código de respuesta: ${response.statusCode}'); // Para depuración
+        print('Respuesta: ${response.body}'); // Para depuración
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          setState(() {
+            _solicitudEnviada = true;
+          });
+          print('Solicitud enviada con éxito');
+        } else {
+          throw Exception('Error al enviar la solicitud: ${response.statusCode}');
+        }
+      } catch (e) {
+        print('Error: $e');
+        setState(() {
+          _solicitudEnviada = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al enviar la solicitud: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
-    } else if (_selectedLocation == null) {
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Por favor, seleccione su ubicación en el mapa'),
+          content: Text('Por favor, complete todos los campos y asegúrese de seleccionar una ubicación'),
           backgroundColor: Colors.red,
         ),
       );
@@ -153,7 +175,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
           'Solicitar un Rescate',
           style: TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.normal,
             fontSize: 20,
           ),
         ),
@@ -211,7 +233,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
                 ),
                 child: Container(
                   padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.green,
                     shape: BoxShape.circle,
                   ),
@@ -222,49 +244,97 @@ class _PantallaRescatesState extends State<PantallaRescates> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               Text(
-                '¡Solicitud enviada con éxito!',
+                '¡Solicitud Enviada!',
                 style: TextStyle(
-                  fontSize: 26,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: primaryColor,
+                  letterSpacing: 0.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Un mecanico estara en camino',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: lightTextColor,
+                  fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
-              _buildInfoRow(Icons.build, 'Problema', _problemaSeleccionado),
-              const SizedBox(height: 16),
-              _buildInfoRow(Icons.description, 'Descripción', _descripcion),
-              if (_selectedLocation != null) ...[
-                const SizedBox(height: 16),
-                _buildInfoRow(
-                  Icons.location_on,
-                  'Ubicación',
-                  '${_selectedLocation!.latitude.toStringAsFixed(6)},\n${_selectedLocation!.longitude.toStringAsFixed(6)}',
+              Container(
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: primaryColor.withOpacity(0.1)),
                 ),
-              ],
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () => Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => PantallaDetallesRescate()),
+                child: Column(
+                  children: [
+                    _buildEnhancedInfoRow(
+                      Icons.build, 
+                      'Problema', 
+                      _problemaSeleccionado,
+                      primaryColor.withOpacity(0.1),
+                      true
+                    ),
+                    _buildEnhancedInfoRow(
+                      Icons.description, 
+                      'Descripción', 
+                      _descripcion,
+                      Colors.transparent,
+                      true
+                    ),
+                    if (_selectedLocation != null)
+                      _buildEnhancedInfoRow(
+                        Icons.location_on, 
+                        'Ubicación', 
+                        '${_selectedLocation!.latitude.toStringAsFixed(6)}, ${_selectedLocation!.longitude.toStringAsFixed(6)}',
+                        primaryColor.withOpacity(0.1),
+                        false
+                      ),
+                  ],
+                ),
               ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () async {
+                  // Obtener el email del usuario desde SharedPreferences
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  String userEmail = prefs.getString('email') ?? '';
+                  
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PantallaDetallesRescate(
+                        userEmail: userEmail, // Pasar el email del usuario actual
+                      ),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
+                  backgroundColor: secondaryColor,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                   elevation: 4,
                 ),
-                child: const Text(
-                  'Detalles de Rescate',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Detalles',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -513,41 +583,57 @@ class _PantallaRescatesState extends State<PantallaRescates> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: primaryColor),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: lightTextColor,
-                  ),
-                ),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: primaryColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+  Widget _buildEnhancedInfoRow(IconData icon, String label, String value, Color bgColor, bool showDivider) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(showDivider ? 0 : 20),
           ),
-        ],
-      ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: primaryColor, size: 22),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: lightTextColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: primaryColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (showDivider)
+          Divider(height: 1, thickness: 1, color: primaryColor.withOpacity(0.05)),
+      ],
     );
   }
 }
