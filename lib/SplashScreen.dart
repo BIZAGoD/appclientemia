@@ -65,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         child: FadeTransition(
           opacity: _animation,
           child: Image.asset(
-            'assets/pantalla-de-carga1.webp', // Tu imagen aquí
+            'assets/SplashMeca.webp', // Tu imagen aquí
             fit: BoxFit.cover,
           ),
         ),

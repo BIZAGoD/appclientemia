@@ -42,12 +42,12 @@ class _PantallaHomeCitasState extends State<PantallaHomeCitas> {
   Future<void> obtenerUsuarioYCargarCitas() async {
     final prefs = await SharedPreferences.getInstance();
     userEmail = prefs.getString('email'); // Obtener el email del usuario que inició sesión
-    print('Email del usuario obtenido: $userEmail'); // Debugging
+    print('Email del usuario obtenido: $userEmail'); 
     
     if (userEmail != null) {
       await cargarCitas();
     } else {
-      print('No se encontró email de usuario'); // Debugging
+      print('No se encontró email de usuario'); 
       setState(() {
         isLoading = false;
       });
