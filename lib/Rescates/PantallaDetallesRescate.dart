@@ -216,38 +216,6 @@ class _PantallaDetallesRescateState extends State<PantallaDetallesRescate> {
             ),
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.delete, color: Colors.white),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('Eliminar Rescate'),
-                    content: Text('¿Estás seguro que deseas eliminar esta solicitud de rescate?'),
-                    actions: [
-                      TextButton(
-                        child: Text('Cancelar'),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          eliminarRescate();
-                        },
-                        style: TextButton.styleFrom(
-                          foregroundColor: secondaryColor,
-                        ),
-                        child: Text('Eliminar'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-        ],
       ),
       body: Stack(
         children: [
@@ -263,23 +231,77 @@ class _PantallaDetallesRescateState extends State<PantallaDetallesRescate> {
                 ? Center(child: CircularProgressIndicator(color: primaryColor))
                 : error != null
                     ? Center(child: Text(error!, style: TextStyle(color: secondaryColor, fontSize: 16)))
-                    : SingleChildScrollView(
-                        padding: EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (rescateActual != null) ...[
-                              _buildEstadoRescate(),
-                              SizedBox(height: 20),
-                              _buildDetallesRescate(),
-                              SizedBox(height: 30),
-                              _buildTitleSection('Talleres cercanos a usted'),
-                              SizedBox(height: 10),
-                              _buildListaTalleres(),
-                            ] else
-                              Center(child: Text('No se encontró ningún rescate activo')),
-                          ],
-                        ),
+                    : Column(
+                        children: [
+                          Expanded(
+                            child: SingleChildScrollView(
+                              padding: EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (rescateActual != null) ...[
+                                    _buildEstadoRescate(),
+                                    SizedBox(height: 20),
+                                    _buildDetallesRescate(),
+                                    SizedBox(height: 30),
+                                    _buildTitleSection('Talleres cercanos a usted'),
+                                    SizedBox(height: 10),
+                                    _buildListaTalleres(),
+                                  ] else
+                                    Center(child: Text('No se encontró ningún rescate activo')),
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (rescateActual != null)
+                            Padding(
+                              padding: EdgeInsets.all(16),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Cancelar Rescate'),
+                                        content: Text('¿Estás seguro que deseas cancelar esta solicitud de rescate?'),
+                                        actions: [
+                                          TextButton(
+                                            child: Text('No'),
+                                            onPressed: () => Navigator.of(context).pop(),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                              eliminarRescate();
+                                            },
+                                            style: TextButton.styleFrom(
+                                              foregroundColor: secondaryColor,
+                                            ),
+                                            child: Text('Sí, cancelar'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color.fromARGB(255, 46, 5, 82),
+                                  foregroundColor: Colors.white,
+                                  minimumSize: Size(double.infinity, 50),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Cancelar rescate',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
           ),
           if (mostrarNotificacion) _buildNotificacionMecanico(),
