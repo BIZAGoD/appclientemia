@@ -102,7 +102,7 @@ class _PantallaRescatesState extends State<PantallaRescates> {
       try {
         // Obtener datos del usuario desde Shared Preferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        String nombre = prefs.getString('nombre') ?? 'Usuario';
+        String nombre = prefs.getString('name') ?? 'Usuario';
         String email = prefs.getString('email') ?? 'usuario@example.com';
 
         // Formatear la fecha en el formato correcto DD-MM-YYYY
