@@ -105,9 +105,9 @@ class _PantallaRescatesState extends State<PantallaRescates> {
         String nombre = prefs.getString('nombre') ?? 'Usuario';
         String email = prefs.getString('email') ?? 'usuario@example.com';
 
-        // Formatear la fecha en el formato correcto YYYY-MM-DD
+        // Formatear la fecha en el formato correcto DD-MM-YYYY
         DateTime now = DateTime.now();
-        String fecha = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+        String fecha = "${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}";
 
         // Crear el objeto de datos a enviar
         Map<String, dynamic> data = {
