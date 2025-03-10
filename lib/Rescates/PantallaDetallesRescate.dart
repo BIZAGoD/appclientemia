@@ -1,3 +1,4 @@
+import 'package:appcliente/Pantallas/Servicios/PantallaHomeServicios.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -285,7 +286,7 @@ class _PantallaDetallesRescateState extends State<PantallaDetallesRescate> {
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromARGB(255, 46, 5, 82),
+                                  backgroundColor: const Color.fromARGB(255, 237, 83, 65),
                                   foregroundColor: Colors.white,
                                   minimumSize: Size(double.infinity, 50),
                                   shape: RoundedRectangleBorder(
@@ -294,6 +295,33 @@ class _PantallaDetallesRescateState extends State<PantallaDetallesRescate> {
                                 ),
                                 child: Text(
                                   'Cancelar rescate',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          if (rescateActual != null)
+                            Padding(
+                              padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => PantallaHomeservicios()),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color.fromARGB(255, 46, 5, 82),
+                                  foregroundColor: Colors.white,
+                                  minimumSize: Size(double.infinity, 50),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Menú Principal',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
