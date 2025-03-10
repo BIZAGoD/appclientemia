@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'services/api_service.dart';
 import 'PantallaRegistroExito.dart'; 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 
 class PantallaRegistro extends StatefulWidget {
   const PantallaRegistro({super.key});
@@ -98,6 +99,8 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
     final RegExp nombreRegex = RegExp(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$');
     if (!nombreRegex.hasMatch(nombre)) {
       nombreError = 'El nombre solo debe contener letras';
+    } else if (nombre.length > 20) {
+      nombreError = 'El nombre no puede tener más de 20 caracteres';
     }
 
     // Validación de apellido
@@ -266,6 +269,20 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
       controller: controller,
       obscureText: isPassword && !_isPasswordVisible,
       keyboardType: isNumber ? TextInputType.phone : TextInputType.text,
+      inputFormatters: label == 'Nombre' 
+          ? [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]'))]
+          : null,
+      onChanged: label == 'Nombre' ? (value) {
+        if (value.length > 20 && nombreError == null) {
+          setState(() {
+            nombreError = 'El nombre no puede tener más de 20 caracteres';
+          });
+        } else if (value.length <= 20 && nombreError == 'El nombre no puede tener más de 20 caracteres') {
+          setState(() {
+            nombreError = null;
+          });
+        }
+      } : null,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, color: const Color.fromARGB(255, 46, 5, 82)),
