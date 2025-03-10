@@ -30,25 +30,24 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
   @override
   void initState() {
     super.initState();
-    cargarUsuarios();
+    // Cargar usuarios en segundo plano sin bloquear la interfaz
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      cargarUsuarios();
+    });
   }
 
   Future<void> cargarUsuarios() async {
     try {
       usuariosExistentes = await ApiService.obtenerUsuarios();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar datos: ${e.toString()}')),
-        );
-      }
+      // Manejo silencioso del error, sin mostrar SnackBar
+      print('Error al cargar usuarios: ${e.toString()}');
+      // Inicializamos la lista como vacía para evitar errores
+      usuariosExistentes = [];
     }
   }
 
   Future<void> registrarUsuario() async {
-    // Primero actualizamos la lista de usuarios
-    await cargarUsuarios();
-    
     final String nombre = nombreController.text.trim();
     final String apellido = apellidoController.text.trim();
     final String telefono = telefonoController.text.trim();
@@ -64,35 +63,30 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
       passwordError = null;
     });
 
-    // Validaciones de datos existentes
-    bool datosExistentes = false;
+    // Validaciones locales sin depender de la API
+    // Omitimos la validación de datos existentes si no pudimos cargar los usuarios
+    if (usuariosExistentes.isNotEmpty) {
+      bool datosExistentes = false;
 
-    // Validar si el correo ya existe
-    if (usuariosExistentes.any((user) => user['Email'].toString().toLowerCase() == email.toLowerCase())) {
-      setState(() {
-        emailError = 'Este correo electrónico ya está registrado';
-      });
-      datosExistentes = true;
-    }
+      // Validar si el correo ya existe
+      if (usuariosExistentes.any((user) => user['Email'].toString().toLowerCase() == email.toLowerCase())) {
+        setState(() {
+          emailError = 'Este correo electrónico ya está registrado';
+        });
+        datosExistentes = true;
+      }
 
-    // Validar si el teléfono ya existe
-    if (usuariosExistentes.any((user) => user['Telefono'] == telefono)) {
-      setState(() {
-        telefonoError = 'Este número de teléfono ya está registrado';
-      });
-      datosExistentes = true;
-    }
+      // Validar si el teléfono ya existe
+      if (usuariosExistentes.any((user) => user['Telefono'] == telefono)) {
+        setState(() {
+          telefonoError = 'Este número de teléfono ya está registrado';
+        });
+        datosExistentes = true;
+      }
 
-    // Validar si la contraseña ya existe
-    if (usuariosExistentes.any((user) => user['Clave'] == password)) {
-      setState(() {
-        passwordError = 'Esta contraseña ya está en uso, elige otra diferente';
-      });
-      datosExistentes = true;
-    }
-
-    if (datosExistentes) {
-      return;
+      if (datosExistentes) {
+        return;
+      }
     }
 
     // Validación de nombre
@@ -144,39 +138,50 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
     }
 
     try {
-      final Map<String, String> userData = {
+      final Map<String, dynamic> userData = {
         'Nombre': nombre,
         'Apellido': apellido,
         'Telefono': telefono,
         'Email': email,
         'Clave': password,
+        'Imagen': null,
       };
 
-      final resultado = await ApiService.registrarUsuario(userData);
-
-      if (!mounted) return;
-
-      if (resultado['success']) {
-        // Guardar datos del usuario en SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('name', nombre);
-        await prefs.setString('lastName', apellido);
-        await prefs.setString('email', email);
-        await prefs.setString('phone', telefono);
+      // Intentamos registrar al usuario con manejo de errores mejorado
+      try {
+        final resultado = await ApiService.registrarUsuario(userData);
         
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const Pantallaregistroexito()),
-        );
-      } else {
+        if (!mounted) return;
+
+        if (resultado['success']) {
+          // Guardar datos del usuario en SharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('name', nombre);
+          await prefs.setString('lastName', apellido);
+          await prefs.setString('email', email);
+          await prefs.setString('phone', telefono);
+          
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const Pantallaregistroexito()),
+          );
+        } else {
+          // Mostrar un mensaje más amigable
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No se pudo completar el registro. Por favor, inténtalo más tarde.')),
+          );
+        }
+      } catch (e) {
+        if (!mounted) return;
+        // Mostrar un mensaje más amigable sin detalles técnicos
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${resultado['message']}')),
+          const SnackBar(content: Text('No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet e inténtalo más tarde.')),
         );
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error de conexión: ${e.toString()}')),
+        const SnackBar(content: Text('Ocurrió un error inesperado. Por favor, inténtalo más tarde.')),
       );
     }
   }
