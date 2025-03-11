@@ -210,7 +210,7 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
                       width: 300,
                       height: 150,
                       child: Image.asset(
-                        'assets/logohome.webp',
+                        'assets/logoapphome.webp',
                         fit: BoxFit.cover,
                       ),
                     ),

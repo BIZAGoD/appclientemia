@@ -131,7 +131,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
                     children: [
                       Center(
                         child: Image.asset(
-                          'assets/logohome.webp',
+                          'assets/logoapphome.webp',
                           height: 125,
                           width: 300,
                           fit: BoxFit.cover, // O prueba BoxFit.fitWidth
